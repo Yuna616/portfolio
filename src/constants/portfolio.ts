@@ -72,7 +72,7 @@ export const EXPERIENCE: ExperienceItem[] = [
     tags: ['JavaScript', 'Python', 'Browser Extension', 'EasyEDA', 'AI Agent'],
   },
   {
-    role: 'Custom Language Learning — PBL Hackathon',
+    role: 'Custom Language Builder — PBL Hackathon',
     company: 'Hackathon project',
     period: 'Mar 2026',
     location: 'Web · Interpreter',

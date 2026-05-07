@@ -138,7 +138,7 @@ export function AboutSection() {
         <div className="max-w-6xl mx-auto">
           <SectionLabel number="02 — Capabilities" title="Expertise" />
           <motion.div
-            className="divide-y divide-white/[0.06]"
+            className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: '-60px' }}
@@ -148,21 +148,21 @@ export function AboutSection() {
               num="01"
               titleTop="MCU firmware"
               titleBottom="ESP32 · STM32 · C/C++"
-              body="I build low-level firmware on ESP32 and STM32: GPIO and peripheral bring-up, sensor reads, interrupt-driven paths, careful memory use, and hands-on debugging. On ESP32 I collect sensor data in real time and process it with tight, optimized C code."
+              body="GPIO and peripheral bring-up, sensor reads, interrupt-driven paths, careful memory use, and hands-on debugging with tight, optimized C code."
               foot="GPIO · Sensors · Interrupts · Memory · Debug"
             />
             <ExpertiseItem
               num="02"
               titleTop="IoT & cloud"
               titleBottom="MQTT · HTTP · Firebase · AWS IoT"
-              body="I ship end-to-end IoT flows—devices publish over MQTT or HTTP, payloads land in Firebase or AWS IoT, and pipelines stay suitable for near–real-time telemetry and dashboards. I also deliver full-stack web surfaces: structured UI, auth-ready patterns, and product-grade UX."
+              body="End-to-end IoT flows — devices publish over MQTT or HTTP, payloads land in Firebase or AWS IoT, with full-stack web surfaces and product-grade UX."
               foot="Telemetry · Cloud ingest · Full-stack web"
             />
             <ExpertiseItem
               num="03"
               titleTop="RTOS systems"
               titleBottom="FreeRTOS · Tasks · Queues · Semaphores"
-              body="I structure firmware as reliable multitasking systems: dedicated tasks for sensing, connectivity, and UI or control loops, coordinated with queues and semaphores so timing and back-pressure stay predictable—raising stability as workloads grow."
+              body="Reliable multitasking firmware: dedicated tasks for sensing, connectivity, and control, coordinated with queues and semaphores for predictable real-time behavior."
               foot="Multitasking · Real-time · Separation of concerns"
             />
           </motion.div>
@@ -334,19 +334,53 @@ function ExpertiseItem({
   body: string;
   foot: string;
 }) {
+  const tags = foot.split(' · ');
+
   return (
     <motion.article
-      className="flex flex-col md:flex-row md:items-start gap-6 md:gap-16 py-10 md:py-12"
+      className="group relative border border-white/[0.07] bg-white/[0.015] p-8 overflow-hidden
+                 hover:border-[#d4e157]/25 hover:bg-white/[0.03] transition-all duration-500 cursor-default"
       variants={fadeUp}
     >
-      <div className="shrink-0 md:w-[240px]">
-        <p className="font-mono text-[11px] text-[#d4e157] uppercase tracking-[0.3em] mb-3">{num}</p>
-        <h3 className="font-sans text-xl sm:text-2xl font-bold text-white leading-tight mb-2">{titleTop}</h3>
-        <p className="font-mono text-xs text-[#d4e157]/55">{titleBottom}</p>
-      </div>
-      <div className="flex-1">
-        <p className="text-[#888] text-sm leading-relaxed mb-4">{body}</p>
-        <p className="font-mono text-xs text-[#505050] uppercase tracking-wide">{foot}</p>
+      {/* Top accent line — slides in on hover */}
+      <div className="absolute top-0 left-0 h-[2px] w-0 bg-gradient-to-r from-[#d4e157] to-[#d4e157]/30 group-hover:w-full transition-all duration-500 ease-out" />
+
+      {/* Ghost number */}
+      <span className="absolute bottom-4 right-5 font-sans font-black select-none pointer-events-none
+                       text-[6rem] leading-none text-white/[0.03] group-hover:text-[#d4e157]/[0.07]
+                       transition-colors duration-500">
+        {num}
+      </span>
+
+      {/* Number tag */}
+      <p className="font-mono text-[10px] text-[#d4e157] uppercase tracking-[0.35em] mb-6">{num}</p>
+
+      {/* Title */}
+      <h3 className="font-sans text-2xl font-bold text-white leading-tight mb-1
+                     group-hover:text-[#d4e157] transition-colors duration-300">
+        {titleTop}
+      </h3>
+      <p className="font-mono text-[11px] text-[#d4e157]/45 mb-6">{titleBottom}</p>
+
+      {/* Divider */}
+      <div className="h-px bg-white/[0.06] mb-6 group-hover:bg-[#d4e157]/10 transition-colors duration-300" />
+
+      {/* Body */}
+      <p className="text-[#777] text-sm leading-relaxed mb-7">{body}</p>
+
+      {/* Tag chips */}
+      <div className="flex flex-wrap gap-2">
+        {tags.map((tag) => (
+          <span
+            key={tag}
+            className="font-mono text-[10px] uppercase tracking-wide px-2.5 py-1
+                       border border-white/[0.07] text-[#505050]
+                       group-hover:border-[#d4e157]/20 group-hover:text-[#777]
+                       transition-all duration-300"
+          >
+            {tag}
+          </span>
+        ))}
       </div>
     </motion.article>
   );
