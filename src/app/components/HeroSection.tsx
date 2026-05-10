@@ -1,4 +1,6 @@
+import * as React from 'react';
 import { motion } from 'motion/react';
+import { Github } from 'lucide-react';
 import { CircuitBackground } from './CircuitBackground';
 
 const TECH_TAGS = ['ESP32', 'FreeRTOS', 'MQTT', 'AWS IoT', 'React', 'TypeScript', 'Python', 'C/C++'];
@@ -200,28 +202,26 @@ export function HeroSection() {
           {/* CTA buttons */}
           <div className="flex flex-wrap gap-3 mb-8">
             <a
-              href="#work"
-              className="font-mono text-[11px] uppercase tracking-[0.2em] px-7 py-3
-                         bg-[#d4e157] text-[#0a0a0a] font-bold hover:bg-[#e0ee6a] transition-colors"
-            >
-              View Projects →
-            </a>
-            <a
               href="https://github.com/Yuna616"
               target="_blank"
               rel="noopener noreferrer"
-              className="font-mono text-[11px] uppercase tracking-[0.2em] px-7 py-3
-                         border border-white/[0.12] text-[#666] hover:text-white hover:border-white/25 transition-colors"
+              className="inline-flex items-center gap-2 rounded-none font-mono text-[11px] font-bold uppercase tracking-[0.2em] px-7 py-3
+                         bg-[#d4e157] text-[#0a0a0a] transition-colors hover:bg-[#e0ee6a]"
             >
+              <Github className="size-4 shrink-0 text-[#0a0a0a]" aria-hidden />
               GitHub ↗
             </a>
-            <a
-              href="#contact"
-              className="font-mono text-[11px] uppercase tracking-[0.2em] px-7 py-3
-                         border border-white/[0.12] text-[#666] hover:text-white hover:border-white/25 transition-colors"
+            <button
+              type="button"
+              onClick={() =>
+                document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+              }
+              className="inline-flex items-center justify-center rounded-none font-mono text-[11px] uppercase tracking-[0.2em] px-7 py-3
+                         border border-white/[0.18] text-[#888] transition-colors
+                         hover:border-[#d4e157] hover:bg-[#d4e157]/10 hover:text-[#d4e157]"
             >
               Contact ↗
-            </a>
+            </button>
           </div>
 
           {/* Location */}

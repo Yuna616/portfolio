@@ -1,11 +1,11 @@
-import { type FormEvent, type KeyboardEvent, useState } from 'react';
+import { type FormEvent, useState } from 'react';
+import { Link } from 'react-router';
 import { motion } from 'motion/react';
-import {
-  EXPERIENCE,
-  PROJECTS,
-  type PortfolioProject,
-} from '../../constants/portfolio';
-import { ProjectDetailModal } from './ProjectDetailModal';
+import { CONTACT_INBOX_EMAIL } from '../../constants/contact';
+import { EXPERIENCE, PROJECTS } from '../../constants/portfolio';
+import { isVideoSrc } from '../../utils/isVideo';
+
+const FORMSUBMIT_AJAX = `https://formsubmit.co/ajax/${encodeURIComponent(CONTACT_INBOX_EMAIL)}`;
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -40,29 +40,37 @@ function SectionLabel({ number, title }: { number: string; title: string }) {
 
 export function AboutSection() {
   const [sent, setSent] = useState(false);
-  const [selectedProject, setSelectedProject] = useState<PortfolioProject | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [sendError, setSendError] = useState<string | null>(null);
 
-  const onContactSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const onContactSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setSent(true);
-  };
+    setSendError(null);
+    setSubmitting(true);
+    const form = e.currentTarget;
+    const formData = new FormData(form);
 
-  const onProjectKeyDown = (e: KeyboardEvent<HTMLElement>, project: PortfolioProject) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      setSelectedProject(project);
+    try {
+      const res = await fetch(FORMSUBMIT_AJAX, {
+        method: 'POST',
+        body: formData,
+        headers: { Accept: 'application/json' },
+      });
+      const data = (await res.json().catch(() => null)) as { error?: string } | null;
+      if (!res.ok) {
+        throw new Error(data?.error || `Request failed (${res.status})`);
+      }
+      setSent(true);
+      form.reset();
+    } catch (err) {
+      setSendError(err instanceof Error ? err.message : 'Could not send message.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
     <>
-      <ProjectDetailModal
-        project={selectedProject}
-        onOpenChange={(next) => {
-          if (!next) setSelectedProject(null);
-        }}
-      />
-
       {/* ── Work ── */}
       <section
         id="work"
@@ -80,18 +88,15 @@ export function AboutSection() {
             variants={stagger}
           >
             {PROJECTS.map((project) => {
-              const thumb = project.images[0];
+              const thumb =
+                project.images.find((src) => !isVideoSrc(src)) ?? project.images[0];
               return (
-                <motion.article
-                  key={project.id}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => setSelectedProject(project)}
-                  onKeyDown={(e) => onProjectKeyDown(e, project)}
-                  className="group cursor-pointer py-12 md:py-16 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d4e157]/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0a]"
-                  variants={fadeUp}
-                >
-                  <div className="flex flex-col lg:flex-row lg:items-center gap-8 lg:gap-16">
+                <motion.div key={project.id} variants={fadeUp}>
+                  <Link
+                    to={`/work/${project.slug}`}
+                    className="group block py-12 md:py-16 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d4e157]/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0a] rounded-sm"
+                  >
+                    <div className="flex flex-col lg:flex-row lg:items-center gap-8 lg:gap-16">
                     {/* Text */}
                     <div className="flex-1 min-w-0">
                       <p className="font-mono text-[11px] text-[#d4e157] uppercase tracking-[0.3em] mb-4">
@@ -123,7 +128,8 @@ export function AboutSection() {
                       </div>
                     )}
                   </div>
-                </motion.article>
+                  </Link>
+                </motion.div>
               );
             })}
           </motion.div>
@@ -273,12 +279,22 @@ export function AboutSection() {
           ) : (
             <motion.form
               onSubmit={onContactSubmit}
-              className="max-w-xl space-y-8"
+              className="relative max-w-xl space-y-8"
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, margin: '-60px' }}
               variants={stagger}
+              aria-busy={submitting}
             >
+              <input type="hidden" name="_subject" value="Portfolio contact — PhotoPolio" />
+              <input
+                type="text"
+                name="_gotcha"
+                className="absolute -left-[10000px] h-0 w-0 opacity-0"
+                tabIndex={-1}
+                autoComplete="off"
+                aria-hidden
+              />
               <motion.div variants={fadeUp}>
                 <label htmlFor="contact-email" className="sr-only">
                   Email
@@ -288,8 +304,9 @@ export function AboutSection() {
                   name="email"
                   type="email"
                   required
+                  disabled={submitting}
                   placeholder="Email"
-                  className="w-full border-b border-white/[0.12] bg-transparent px-0 py-3 text-sm text-white placeholder:text-[#444] focus:outline-none focus:border-[#d4e157]/50 transition-colors"
+                  className="w-full border-b border-white/[0.12] bg-transparent px-0 py-3 text-sm text-white placeholder:text-[#444] focus:outline-none focus:border-[#d4e157]/50 transition-colors disabled:opacity-50"
                 />
               </motion.div>
               <motion.div variants={fadeUp}>
@@ -301,16 +318,23 @@ export function AboutSection() {
                   name="message"
                   required
                   rows={5}
+                  disabled={submitting}
                   placeholder="Your message"
-                  className="w-full border-b border-white/[0.12] bg-transparent px-0 py-3 text-sm text-white placeholder:text-[#444] focus:outline-none focus:border-[#d4e157]/50 transition-colors resize-none min-h-[120px]"
+                  className="w-full border-b border-white/[0.12] bg-transparent px-0 py-3 text-sm text-white placeholder:text-[#444] focus:outline-none focus:border-[#d4e157]/50 transition-colors resize-none min-h-[120px] disabled:opacity-50"
                 />
               </motion.div>
+              {sendError ? (
+                <p className="font-mono text-sm text-red-400/90" role="alert">
+                  {sendError}
+                </p>
+              ) : null}
               <motion.div variants={fadeUp}>
                 <button
                   type="submit"
-                  className="font-mono text-xs uppercase tracking-[0.2em] px-8 py-3 bg-[#d4e157] text-[#0a0a0a] font-bold hover:bg-[#e0ee6a] transition-colors"
+                  disabled={submitting}
+                  className="rounded-none font-mono text-xs uppercase tracking-[0.2em] px-8 py-3 bg-[#d4e157] text-[#0a0a0a] font-bold transition-colors hover:bg-[#e0ee6a] disabled:opacity-50 disabled:pointer-events-none"
                 >
-                  Submit
+                  {submitting ? 'Sending…' : 'Submit'}
                 </button>
               </motion.div>
             </motion.form>
