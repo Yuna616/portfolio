@@ -13,7 +13,8 @@ export interface ProjectCaseStudy {
   lead?: string;
   problem?: string;
   approach?: string;
-  highlights?: { title: string; body: string }[];
+  highlights?: { title: string; body: string; codeBlocks?: { label: string; code: string }[] }[];
+  fieldTest?: { text: string; image: string };
   reflection?: string;
 }
 
@@ -47,7 +48,7 @@ export const PROJECTS: PortfolioProject[] = [
     category: ['typescript', 'javascript'],
     tagline: 'Long drives drag—Carpybara keeps them from feeling that way.',
     description:
-      'Driving can turn into a stretch of sameness: same lanes, same silence, same wait. Carpybara is a small dashboard companion whose motion tracks your speed—there to make those minutes feel less empty, not to shout for attention. I owned the full arc from hardware and firmware through product direction: embedded bring-up, board- and system-level hardware design, and PM/PO work to align scope, milestones, and the in-cabin experience.',
+      'Driving can turn into a stretch of sameness: same lanes, same silence, same wait. Carpybara is a small dashboard companion whose motion tracks your speed—there to make those minutes feel less empty, not to shout for attention. I led firmware development and drove product direction as PM/PO: embedded bring-up, reliable sensing pipelines, and the scope and milestone decisions that kept the in-cabin experience on track.',
     url: 'https://carpybara.com/',
     devLogUrl:
       'https://lovebotw049.tistory.com/category/%EA%B0%9C%EC%9D%B8%20%EA%B0%9C%EB%B0%9C/%EC%9E%90%EB%8F%99%EC%B0%A8%20%EC%86%8D%EB%8F%84%20%EA%B8%B0%EB%B0%98%20IoT%20%EC%9E%A5%EC%8B%9D%20%EB%A7%8C%EB%93%A4%EA%B8%B0',
@@ -56,12 +57,12 @@ export const PROJECTS: PortfolioProject[] = [
     caseStudy: {
       meta: {
         platform: 'In-vehicle embedded device · Companion UI',
-        role: 'Firmware development · Hardware design · PM / PO',
+        role: 'Firmware development · PM / PO',
         timeline: 'Ongoing',
         team: '4-person core team',
         toolsGroups: [
           { label: 'Firmware & Embedded', items: 'ESP32 · FreeRTOS · PlatformIO · C/C++ · Arduino' },
-          { label: 'Sensors & Hardware', items: 'MPU-6050 (IMU) · NEO-6M (GPS)' },
+          { label: 'Sensors', items: 'MPU-6050 (IMU) · NEO-6M (GPS)' },
           { label: 'Tools', items: 'Git · Linux · VS Code · PlatformIO ' },
         ],
       },
@@ -70,23 +71,59 @@ export const PROJECTS: PortfolioProject[] = [
       problem:
         'Drivers need information at a glance without cognitive overload. Heavy dashboards compete for attention; a companion layer must stay subtle, readable in sunlight, and responsive to real vehicle state.',
       approach:
-        'On the firmware side I focused on reliable sensing, state handling, and performance so motion tracks real driving dynamics—not demo curves. On hardware I carried schematic and layout decisions through bring-up so the device survives automotive-ish constraints. As PM/PO I prioritized the roadmap, acceptance criteria, and trade-offs between mechanical fit, BOM risk, and the glanceable UX we wanted on the road.',
+        'On the firmware side I focused on reliable sensing, state handling, and performance so motion tracks real driving dynamics—not demo curves. As PM/PO I prioritized the roadmap, acceptance criteria, and trade-offs between BOM risk and the glanceable UX we wanted on the road—keeping firmware delivery and product goals in sync.',
       highlights: [
         {
           title: 'Firmware & sensing',
           body: 'Low-level code paths tie UI behavior to vehicle/speed context with predictable timing, so the character reads as trustworthy rather than decorative.',
         },
         {
-          title: 'Hardware design & integration',
-          body: 'Board-level design and integration work connect sensors, power, and comms to the product shell—closing the loop between what the firmware reads and what the driver actually experiences.',
+          title: 'Why FreeRTOS',
+          body: 'The original Arduino loop() ran everything sequentially on a single core: HTTP serving, sensor reads, and screen drawing waited in line one after another. A file transfer blocking for 30 ms meant 30 ms of frozen animation. Adding GPS and IMU made it worse—the loop grew longer and frame rate dropped further.\n\nFreeRTOS replaced that single queue with three independent tasks pinned across both ESP32-S3 cores. NetworkTask (Core 0, 100 Hz) handles petWebTick(), DNS, and HTTP file serving. SensorTask (Core 0, 20 Hz) parses GPS over Serial2 and reads the MPU-6050 via I2C, then detects brake and bump events. DisplayTask (Core 1, 60 Hz) reads a snapshot of sensor state and drives every frame of animation. A single mutex guards the shared SensorState struct so reads and writes never race.\n\nThe result: HTTP blocking is fully isolated to Core 0, so a 30 ms file transfer no longer touches the display. DisplayTask fires every 16 ms regardless of network load. Sensor additions stay inside SensorTask and have zero impact on frame timing. vTaskDelay() yields the CPU between ticks rather than spinning, so each core works on something useful instead of burning cycles on delay(). The frame rate went from loop()-dependent and irregular to a stable 60 fps—and adding new sensors costs nothing in display performance.',
+          codeBlocks: [
+            {
+              label: 'tasks.cpp — Three tasks, two cores',
+              code: `static void sensorTask(void*) {
+  for (;;) {
+    PetSensor::write(
+      gps.speed.kmph(),
+      detectBrake(),
+      detectBump()
+    );
+    vTaskDelay(pdMS_TO_TICKS(50)); // 20 Hz
+  }
+}
+
+static void displayTask(void*) {
+  for (;;) {
+    SensorState s;
+    PetSensor::petSensorRead(&s); // mutex snapshot
+    petAnimSetSpeed(s.speed_kmh);
+    petAnimDraw();
+    vTaskDelay(pdMS_TO_TICKS(16)); // ~60 fps
+  }
+}
+
+static void networkTask(void*) {
+  for (;;) {
+    petWebTick(); // may block — Core 0 only
+    vTaskDelay(pdMS_TO_TICKS(10)); // 100 Hz
+  }
+}`,
+            },
+          ],
         },
         {
           title: 'PM / PO ownership',
-          body: 'Backlog, milestones, and stakeholder alignment kept firmware, hardware, and UI moving together—cutting scope where needed and defending quality for in-cabin use.',
+          body: 'Backlog, milestones, and stakeholder alignment kept firmware and UI moving together—cutting scope where needed and defending quality for in-cabin use.',
         },
       ],
+      fieldTest: {
+        text: 'To validate the experience in a real cabin, I visited the Rivian showroom at Irvine Spectrum Center and ran the device against an actual vehicle. Testing on a production EV confirmed that sensor readings and UI responses held up outside the lab—and surfaced edge cases in ambient light and mounting angle that only a real interior could reveal.',
+        image: '/carpybara_2.png',
+      },
       reflection:
-        'Carpybara reinforced that “product” on the dashboard is really three threads: silicon and copper, the code that interprets them, and the decisions that keep a small team shipping. Wearing firmware, hardware, and PM/PO hats at once is messy—but it is the fastest way to learn where the real risks live.',
+        'Carpybara reinforced that “product” on the dashboard is really two threads: the code that reads and interprets the world, and the decisions that keep a small team shipping. Wearing firmware and PM/PO hats at once is messy—but it is the fastest way to learn where the real risks live.',
     },
   },
   {

@@ -294,24 +294,92 @@ export function ProjectCaseStudyPage() {
                 Key points
               </h2>
               <div className="w-6 h-px bg-[#d4e157]/30 mb-8" />
-              <ul className="space-y-4">
-                {cs.highlights.map((h, i) => (
-                  <li
-                    key={h.title}
-                    className="border border-white/[0.07] rounded-sm p-6 sm:p-8 bg-white/[0.018] hover:border-white/[0.12] transition-colors"
-                  >
-                    <div className="flex items-start gap-4">
-                      <span className="font-mono text-[10px] text-[#d4e157]/40 tracking-widest shrink-0 mt-0.5">
-                        {String(i + 1).padStart(2, '0')}
-                      </span>
-                      <div>
-                        <h3 className="font-sans text-base font-semibold text-white/90 mb-2">{h.title}</h3>
-                        <p className="text-[#777] text-sm leading-relaxed">{h.body}</p>
+              <ul className="space-y-12">
+                {cs.highlights.map((h, i) =>
+                  h.codeBlocks ? (
+                    /* ── Code-variant highlight (no card) ── */
+                    <li key={h.title}>
+                      <div className="flex items-center gap-3 mb-5">
+                        <span className="font-mono text-[10px] text-[#d4e157]/40 tracking-widest shrink-0">
+                          {String(i + 1).padStart(2, '0')}
+                        </span>
+                        <h3 className="font-sans text-lg font-semibold text-white/90">{h.title}</h3>
                       </div>
-                    </div>
-                  </li>
-                ))}
+                      <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start">
+                        {/* Text — main content */}
+                        <div className="flex-1 min-w-0 space-y-4">
+                          {h.body.split('\n\n').map((para, pi) => (
+                            <p key={pi} className="text-[#8a8a8a] text-base sm:text-lg leading-[1.85]">{para}</p>
+                          ))}
+                        </div>
+                        {/* Single code block */}
+                        <div className="w-full lg:w-[42%] shrink-0 space-y-3">
+                          {h.codeBlocks.map((cb) => (
+                            <div key={cb.label} className="rounded-sm overflow-hidden border border-white/[0.08]">
+                              {/* IDE-style title bar */}
+                              <div className="flex items-center gap-2 px-4 py-2.5 bg-[#161616] border-b border-white/[0.06]">
+                                <span className="size-2.5 rounded-full bg-[#ff5f57]" />
+                                <span className="size-2.5 rounded-full bg-[#febc2e]" />
+                                <span className="size-2.5 rounded-full bg-[#28c840]" />
+                                <span className="font-mono text-[10px] text-white/30 ml-2 tracking-wide">{cb.label}</span>
+                              </div>
+                              {/* Code body */}
+                              <pre className="overflow-x-auto bg-[#0e0e0e] px-5 py-4 text-[12px] leading-[1.75] font-mono text-[#c9d1d9] scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
+                                <code>{cb.code}</code>
+                              </pre>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </li>
+                  ) : (
+                    /* ── Default card highlight ── */
+                    <li
+                      key={h.title}
+                      className="border border-white/[0.07] rounded-sm p-6 sm:p-8 bg-white/[0.018] hover:border-white/[0.12] transition-colors"
+                    >
+                      <div className="flex items-start gap-4">
+                        <span className="font-mono text-[10px] text-[#d4e157]/40 tracking-widest shrink-0 mt-0.5">
+                          {String(i + 1).padStart(2, '0')}
+                        </span>
+                        <div>
+                          <h3 className="font-sans text-base font-semibold text-white/90 mb-2">{h.title}</h3>
+                          <div className="space-y-3">
+                            {h.body.split('\n\n').map((para, pi) => (
+                              <p key={pi} className="text-[#777] text-sm leading-relaxed">{para}</p>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </li>
+                  )
+                )}
               </ul>
+            </motion.section>
+          ) : null}
+
+          {cs?.fieldTest ? (
+            <motion.section
+              {...FADE_UP}
+              transition={{ ...FADE_UP.transition, delay: 0.48 }}
+            >
+              <SectionNumber n={nextNum()} />
+              <h2 className="font-sans text-2xl sm:text-3xl font-bold text-white mb-6 mt-1">
+                Field test
+              </h2>
+              <div className="w-6 h-px bg-[#d4e157]/30 mb-7" />
+              <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start">
+                <p className="text-[#8a8a8a] text-base sm:text-lg leading-[1.85] flex-1">
+                  {cs.fieldTest.text}
+                </p>
+                <div className="w-full lg:w-[42%] shrink-0 overflow-hidden rounded-sm border border-white/[0.07]">
+                  <img
+                    src={cs.fieldTest.image}
+                    alt="Real-vehicle field test"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
             </motion.section>
           ) : null}
 
