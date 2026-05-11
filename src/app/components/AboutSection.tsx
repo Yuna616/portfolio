@@ -108,10 +108,13 @@ export function AboutSection() {
                       >
                         {project.title}
                       </h3>
-                      <p className="font-mono text-xs text-neutral-600 mb-5 dark:text-[#555]">{project.stack}</p>
-                      <p className="text-neutral-600 text-sm max-w-sm mb-8 leading-relaxed dark:text-[#777]">{project.tagline}</p>
-                      <span className="font-mono text-xs uppercase tracking-[0.18em] text-neutral-600 border-b border-neutral-300 pb-0.5 transition-colors duration-300 group-hover:text-portfolio group-hover:border-portfolio/30 dark:text-[#555] dark:border-white/[0.1]">
-                        View project →
+                      <p className="font-mono text-xs text-neutral-500 mb-5 dark:text-[#747474]">{project.stack}</p>
+                      <p className="text-neutral-500 text-sm max-w-sm mb-8 leading-relaxed dark:text-[#a8a8a8]">{project.tagline}</p>
+                      <span className="inline-flex items-center gap-2 rounded-sm bg-portfolio px-5 py-3 font-mono text-xs font-semibold uppercase tracking-[0.2em] text-portfolio-foreground shadow-[0_4px_28px_-8px_rgba(212,225,87,0.65)] transition-all duration-300 group-hover:bg-portfolio-hover group-hover:shadow-[0_6px_32px_-8px_rgba(224,238,106,0.55)]">
+                        View project
+                        <span aria-hidden className="translate-x-0 transition-transform duration-300 group-hover:translate-x-0.5">
+                          →
+                        </span>
                       </span>
                     </div>
 
@@ -205,8 +208,8 @@ export function AboutSection() {
                     )}
                   </div>
                   <p className="text-portfolio text-sm mb-2">@ {job.company}</p>
-                  <p className="font-mono text-xs text-neutral-500 mb-1 dark:text-[#666]">{job.period}</p>
-                  <p className="font-mono text-xs text-neutral-600 mb-4 dark:text-[#555]">{job.location}</p>
+                  <p className="font-mono text-xs text-neutral-500 mb-1 dark:text-[#858585]">{job.period}</p>
+                  <p className="font-mono text-xs text-neutral-500 mb-4 dark:text-[#747474]">{job.location}</p>
                   {job.url && (
                     <a
                       href={job.url}
@@ -224,18 +227,18 @@ export function AboutSection() {
                       {job.bullets.map((b) => (
                         <li key={b} className="flex gap-3 text-sm leading-relaxed">
                           <span className="text-portfolio/40 shrink-0 select-none mt-px">—</span>
-                          <span className="text-neutral-600 dark:text-[#888]">{b}</span>
+                          <span className="text-neutral-500 dark:text-[#b3b3b3]">{b}</span>
                         </li>
                       ))}
                     </ul>
                   ) : job.description ? (
-                    <p className="text-neutral-600 text-sm leading-relaxed mb-6 dark:text-[#888]">{job.description}</p>
+                    <p className="text-neutral-500 text-sm leading-relaxed mb-6 dark:text-[#b3b3b3]">{job.description}</p>
                   ) : null}
                   <div className="flex flex-wrap gap-2">
                     {job.tags.map((tag) => (
                       <span
                         key={tag}
-                        className="font-mono text-[11px] uppercase tracking-wide px-2.5 py-1 border border-neutral-200 text-neutral-600 dark:border-white/[0.08] dark:text-[#666]"
+                        className="font-mono text-[11px] uppercase tracking-wide px-2.5 py-1 border border-neutral-200 text-neutral-500 dark:border-white/[0.08] dark:text-[#858585]"
                       >
                         {tag}
                       </span>
@@ -306,7 +309,7 @@ export function AboutSection() {
                   required
                   disabled={submitting}
                   placeholder="Email"
-                  className="w-full border-b border-neutral-300 bg-transparent px-0 py-3 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:border-portfolio/50 transition-colors disabled:opacity-50 dark:border-white/[0.12] dark:text-white dark:placeholder:text-[#444]"
+                  className="w-full border-b border-neutral-300 bg-transparent px-0 py-3 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:border-portfolio/50 transition-colors disabled:opacity-50 dark:border-white/[0.12] dark:text-white dark:placeholder:text-[#5c5c5c]"
                 />
               </motion.div>
               <motion.div variants={fadeUp}>
@@ -320,7 +323,7 @@ export function AboutSection() {
                   rows={5}
                   disabled={submitting}
                   placeholder="Your message"
-                  className="w-full border-b border-neutral-300 bg-transparent px-0 py-3 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:border-portfolio/50 transition-colors resize-none min-h-[120px] disabled:opacity-50 dark:border-white/[0.12] dark:text-white dark:placeholder:text-[#444]"
+                  className="w-full border-b border-neutral-300 bg-transparent px-0 py-3 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:border-portfolio/50 transition-colors resize-none min-h-[120px] disabled:opacity-50 dark:border-white/[0.12] dark:text-white dark:placeholder:text-[#5c5c5c]"
                 />
               </motion.div>
               {sendError ? (
@@ -391,7 +394,7 @@ function ExpertiseItem({
       <div className="h-px bg-neutral-200 mb-6 group-hover:bg-portfolio/10 transition-colors duration-300 dark:bg-white/[0.06]" />
 
       {/* Body */}
-      <p className="text-neutral-600 text-sm leading-relaxed mb-7 dark:text-[#777]">{body}</p>
+      <p className="text-neutral-500 text-sm leading-relaxed mb-7 dark:text-[#a8a8a8]">{body}</p>
 
       {/* Tag chips */}
       <div className="flex flex-wrap gap-2">
@@ -399,9 +402,9 @@ function ExpertiseItem({
           <span
             key={tag}
             className="font-mono text-[10px] uppercase tracking-wide px-2.5 py-1
-                       border border-neutral-200 text-neutral-600
+                       border border-neutral-200 text-neutral-500
                        group-hover:border-portfolio/20 group-hover:text-neutral-700
-                       transition-all duration-300 dark:border-white/[0.07] dark:text-[#505050] dark:group-hover:text-[#777]"
+                       transition-all duration-300 dark:border-white/[0.07] dark:text-[#6a6a6a] dark:group-hover:text-[#a8a8a8]"
           >
             {tag}
           </span>

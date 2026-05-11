@@ -118,7 +118,7 @@ export function ProjectCaseStudyPage() {
           >
             {project.title}
           </h1>
-          <p className="text-neutral-600 text-base sm:text-lg max-w-xl leading-relaxed dark:text-white/50">
+          <p className="text-neutral-500 text-base sm:text-lg max-w-xl leading-relaxed dark:text-white/65">
             {project.tagline}
           </p>
         </motion.div>
@@ -129,7 +129,7 @@ export function ProjectCaseStudyPage() {
 
         {/* Stack label */}
         <motion.p
-          className="font-mono text-[11px] uppercase tracking-[0.3em] text-neutral-500 mb-16 dark:text-[#666]"
+          className="font-mono text-[11px] uppercase tracking-[0.3em] text-neutral-500 mb-16 dark:text-[#8a8a8a]"
           {...FADE_UP}
           transition={{ ...FADE_UP.transition, delay: 0.1 }}
         >
@@ -152,7 +152,7 @@ export function ProjectCaseStudyPage() {
             ].map(({ label, value }) => (
               <div key={label} className="py-4 first:pt-0">
                 <p className="font-mono text-[9px] uppercase tracking-[0.35em] text-portfolio/50 mb-1.5">{label}</p>
-                <p className="text-sm text-neutral-800 leading-relaxed dark:text-white/80">{value}</p>
+                <p className="text-sm text-neutral-700 leading-relaxed dark:text-white/88">{value}</p>
               </div>
             ))}
             <div className="py-4">
@@ -161,13 +161,13 @@ export function ProjectCaseStudyPage() {
                 <div className="space-y-3">
                   {meta.toolsGroups.map(({ label, items }) => (
                     <div key={label}>
-                      <p className="font-mono text-[8px] uppercase tracking-wider text-neutral-400 mb-1 dark:text-white/30">{label}</p>
-                      <p className="text-sm text-neutral-700 leading-relaxed dark:text-white/75">{items}</p>
+                      <p className="font-mono text-[8px] uppercase tracking-wider text-neutral-400 mb-1 dark:text-white/45">{label}</p>
+                      <p className="text-sm text-neutral-600 leading-relaxed dark:text-white/85">{items}</p>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-neutral-700 leading-relaxed dark:text-white/75">{meta?.tools ?? project.stack}</p>
+                <p className="text-sm text-neutral-600 leading-relaxed dark:text-white/85">{meta?.tools ?? project.stack}</p>
               )}
             </div>
           </div>
@@ -262,7 +262,7 @@ export function ProjectCaseStudyPage() {
             {...FADE_UP}
             transition={{ ...FADE_UP.transition, delay: 0.25 }}
           >
-            <p className="text-xl sm:text-2xl leading-[1.7] text-neutral-700 font-light dark:text-white/75">
+            <p className="text-xl sm:text-2xl leading-[1.7] text-neutral-500 font-light dark:text-white/88">
               {cs.lead}
             </p>
           </motion.blockquote>
@@ -280,7 +280,7 @@ export function ProjectCaseStudyPage() {
               <h2 className="font-sans text-2xl sm:text-3xl font-bold text-neutral-900 mb-6 dark:text-white">
                 Problem
               </h2>
-              <p className="text-neutral-600 text-lg leading-[1.9] dark:text-[#a0a0a0]">{cs.problem}</p>
+              <p className="text-neutral-500 text-lg leading-[1.9] dark:text-[#b8b8b8]">{cs.problem}</p>
             </motion.section>
           )}
 
@@ -293,7 +293,7 @@ export function ProjectCaseStudyPage() {
               Overview
             </h2>
             <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start">
-              <p className="text-neutral-600 text-lg leading-[1.9] flex-1 dark:text-[#a0a0a0]">{project.description}</p>
+              <p className="text-neutral-500 text-lg leading-[1.9] flex-1 dark:text-[#b8b8b8]">{project.description}</p>
               {cs?.overviewMedia && (
                 <div className="w-full lg:w-[42%] shrink-0 overflow-hidden rounded-sm border border-neutral-200 bg-neutral-100 dark:border-white/[0.07] dark:bg-[#111]">
                   <img
@@ -343,7 +343,7 @@ export function ProjectCaseStudyPage() {
                           }
                         >
                           {h.body.split('\n\n').map((para, pi) => (
-                            <p key={pi} className="text-neutral-600 text-lg leading-[1.85] dark:text-[#a0a0a0]">
+                            <p key={pi} className="text-neutral-500 text-lg leading-[1.85] dark:text-[#b8b8b8]">
                               {para}
                             </p>
                           ))}
@@ -359,7 +359,7 @@ export function ProjectCaseStudyPage() {
                                   <span className="size-2.5 rounded-full bg-[#ff5f57]" />
                                   <span className="size-2.5 rounded-full bg-[#febc2e]" />
                                   <span className="size-2.5 rounded-full bg-[#28c840]" />
-                                  <span className="font-mono text-[10px] text-neutral-500 ml-2 tracking-wide dark:text-white/30">
+                                  <span className="font-mono text-[10px] text-neutral-500 ml-2 tracking-wide dark:text-white/45">
                                     {cb.label}
                                   </span>
                                 </div>
@@ -393,7 +393,7 @@ export function ProjectCaseStudyPage() {
                 Fabrication
               </h2>
               <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start">
-                <p className="text-neutral-600 text-lg leading-[1.9] flex-1 dark:text-[#a0a0a0]">
+                <p className="text-neutral-500 text-lg leading-[1.9] flex-1 dark:text-[#b8b8b8]">
                   {cs.fabrication.text}
                 </p>
                 <div className="w-full lg:w-[42%] shrink-0 grid grid-cols-2 gap-3">
@@ -417,7 +417,7 @@ export function ProjectCaseStudyPage() {
                 Field test
               </h2>
               <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start">
-                <p className="text-neutral-600 text-lg leading-[1.9] flex-1 dark:text-[#a0a0a0]">
+                <p className="text-neutral-500 text-lg leading-[1.9] flex-1 dark:text-[#b8b8b8]">
                   {cs.fieldTest.text}
                 </p>
                 <div className="w-full lg:w-[42%] shrink-0 overflow-hidden rounded-sm border border-neutral-200 dark:border-white/[0.07]">
@@ -441,7 +441,7 @@ export function ProjectCaseStudyPage() {
               <h2 className="font-sans text-2xl font-bold text-neutral-900 mb-6 dark:text-white">
                 Reflection
               </h2>
-              <p className="text-neutral-600 text-lg leading-[1.9] dark:text-[#a0a0a0]">{cs.reflection}</p>
+              <p className="text-neutral-500 text-lg leading-[1.9] dark:text-[#b8b8b8]">{cs.reflection}</p>
             </motion.section>
           )}
         </div>
