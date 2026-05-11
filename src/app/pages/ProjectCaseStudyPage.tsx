@@ -5,6 +5,15 @@ import { motion } from 'motion/react';
 import { getProjectBySlug } from '../../constants/portfolio';
 import { SensorPipelineDiagram } from '../components/SensorPipelineDiagram';
 import { PointAgentsDiagram } from '../components/PointAgentsDiagram';
+import {
+  type CarouselApi,
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from '../components/ui/carousel';
+import { cn } from '../components/ui/utils';
 import { isVideoSrc } from '../../utils/isVideo';
 
 /** Gallery autoplay on /work/:slug — interval resets when slide changes */
@@ -22,6 +31,93 @@ function SectionNumber({ n }: { n: string }) {
     <div className="flex items-center gap-4 mb-6 md:mb-7">
       <span className="font-mono text-[10px] text-portfolio/55 tracking-[0.4em] shrink-0">{n}</span>
       <div className="h-px flex-1 bg-gradient-to-r from-portfolio/20 to-transparent" />
+    </div>
+  );
+}
+
+function CaseStudyPhotoCarousel({
+  images,
+  slideLabel,
+}: {
+  images: string[];
+  slideLabel: string;
+}) {
+  const [api, setApi] = useState<CarouselApi>();
+  const [active, setActive] = useState(0);
+
+  useEffect(() => {
+    if (!api) return;
+    const sync = () => setActive(api.selectedScrollSnap());
+    sync();
+    api.on('reInit', sync);
+    api.on('select', sync);
+    return () => {
+      api.off('reInit', sync);
+      api.off('select', sync);
+    };
+  }, [api]);
+
+  const showNav = images.length > 1;
+
+  return (
+    <div className="w-full space-y-3">
+      <Carousel className="w-full" setApi={setApi}>
+        <CarouselContent className="-ml-0">
+          {images.map((src, i) => (
+            <CarouselItem key={`${src}-${i}`} className="pl-0 basis-full">
+              <div className="overflow-hidden rounded-sm border border-neutral-200 bg-neutral-100 aspect-[4/3] dark:border-white/[0.07] dark:bg-[#111]">
+                <img
+                  src={src}
+                  alt={`${slideLabel} — ${i + 1} / ${images.length}`}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+        {showNav && (
+          <>
+            <CarouselPrevious
+              variant="outline"
+              size="icon"
+              className="top-1/2 left-2 -translate-y-1/2 border-neutral-200 bg-white/90 shadow-sm hover:bg-white dark:border-white/15 dark:bg-[#1a1a1a]/95 dark:hover:bg-[#222]"
+            />
+            <CarouselNext
+              variant="outline"
+              size="icon"
+              className="top-1/2 right-2 -translate-y-1/2 border-neutral-200 bg-white/90 shadow-sm hover:bg-white dark:border-white/15 dark:bg-[#1a1a1a]/95 dark:hover:bg-[#222]"
+            />
+          </>
+        )}
+      </Carousel>
+
+      {showNav && (
+        <div
+          className="flex flex-wrap justify-center gap-2"
+          role="tablist"
+          aria-label={`${slideLabel} thumbnails`}
+        >
+          {images.map((src, i) => (
+            <button
+              key={`thumb-${src}-${i}`}
+              type="button"
+              role="tab"
+              aria-selected={active === i}
+              aria-label={`${slideLabel} preview ${i + 1} of ${images.length}`}
+              onClick={() => api?.scrollTo(i)}
+              className={cn(
+                'relative overflow-hidden rounded-sm border bg-neutral-100 transition-[box-shadow,opacity] dark:bg-[#111]',
+                'h-14 w-[4.5rem] shrink-0 sm:h-16 sm:w-[5.25rem]',
+                active === i
+                  ? 'border-portfolio ring-2 ring-portfolio/35 ring-offset-2 ring-offset-white dark:ring-offset-[#0a0a0a]'
+                  : 'border-neutral-200 opacity-75 hover:opacity-100 dark:border-white/[0.12]',
+              )}
+            >
+              <img src={src} alt="" className="h-full w-full object-cover" draggable={false} />
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -396,12 +492,8 @@ export function ProjectCaseStudyPage() {
                 <p className="text-neutral-500 text-lg leading-[1.9] flex-1 dark:text-[#b8b8b8]">
                   {cs.fabrication.text}
                 </p>
-                <div className="w-full lg:w-[42%] shrink-0 grid grid-cols-2 gap-3">
-                  {cs.fabrication.images.map((src, i) => (
-                    <div key={i} className="overflow-hidden rounded-sm border border-neutral-200 bg-neutral-100 aspect-[4/3] dark:border-white/[0.07] dark:bg-[#111]">
-                      <img src={src} alt="" className="w-full h-full object-cover" />
-                    </div>
-                  ))}
+                <div className="w-full lg:w-[42%] shrink-0">
+                  <CaseStudyPhotoCarousel images={cs.fabrication.images} slideLabel="Fabrication" />
                 </div>
               </div>
             </motion.section>
@@ -420,11 +512,10 @@ export function ProjectCaseStudyPage() {
                 <p className="text-neutral-500 text-lg leading-[1.9] flex-1 dark:text-[#b8b8b8]">
                   {cs.fieldTest.text}
                 </p>
-                <div className="w-full lg:w-[42%] shrink-0 overflow-hidden rounded-sm border border-neutral-200 dark:border-white/[0.07]">
-                  <img
-                    src={cs.fieldTest.image}
-                    alt="Real-vehicle field test"
-                    className="w-full h-full object-cover"
+                <div className="w-full lg:w-[42%] shrink-0">
+                  <CaseStudyPhotoCarousel
+                    images={cs.fieldTest.images}
+                    slideLabel="Field test"
                   />
                 </div>
               </div>

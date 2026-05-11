@@ -22,7 +22,7 @@ export interface ProjectCaseStudy {
     codeBlocks?: { label: string; code: string }[];
   }[];
   fabrication?: { text: string; images: string[] };
-  fieldTest?: { text: string; image: string };
+  fieldTest?: { text: string; images: string[] };
   reflection?: string;
 }
 
@@ -60,7 +60,7 @@ export const PROJECTS: PortfolioProject[] = [
     url: 'https://carpybara.com/',
     devLogUrl:
       'https://lovebotw049.tistory.com/category/%EA%B0%9C%EC%9D%B8%20%EA%B0%9C%EB%B0%9C/%EC%9E%90%EB%8F%99%EC%B0%A8%20%EC%86%8D%EB%8F%84%20%EA%B8%B0%EB%B0%98%20IoT%20%EC%9E%A5%EC%8B%9D%20%EB%A7%8C%EB%93%A4%EA%B8%B0',
-    images: ['/carpybara.png', '/Carpybara_video.mov', '/carpybara_2.png', '/carpybara_3.jpg','/run (1).gif'],
+    images: ['/carpybara.png', '/Carpybara_video.mov', '/carpybara_2.png', '/carpybara_3.jpg','/carpybara_5.jpg','/run (1).gif'],
     heroImage: '/run (1).gif',
     caseStudy: {
       meta: {
@@ -157,11 +157,11 @@ void sensorTask(void*) {
       ],
       fabrication: {
         text: 'To move Carpybara from breadboard to a device that could actually sit inside a car, we visited UCI FabWorks for a hands-on fabrication session. The enclosure was 3D-printed to house the ESP32-S3, TFT display, and sensor modules within a compact, mountable form factor. Sensor leads were hand-soldered—GPS module over UART2, MPU-6050 over I2C—locking in the physical wiring the firmware already assumed. Working through real tolerances, heat, and cable routing surfaced integration details that only appear when you hold the hardware.',
-        images: ['/carpybara_3.jpg', '/carpybara_4.jpg'],
+        images: ['/carpybara_3.jpg', '/carpybara_6.png','/carpybara_4.jpg'],
       },
       fieldTest: {
         text: 'To validate the experience in a real cabin, I visited the Rivian showroom at Irvine Spectrum Center and ran the device against an actual vehicle. Testing on a production EV confirmed that sensor readings and UI responses held up outside the lab—and surfaced edge cases in ambient light and mounting angle that only a real interior could reveal.',
-        image: '/carpybara_2.png',
+        images: ['/carpybara_2.png', '/carpybara_5.jpg'],
       },
       reflection:
         'Building a hardware device and getting it to a point where it can actually be used in the real world were both harder than they look on paper. Tuning the circuit and firmware is only the start—mounting, environment, and durability are the kinds of details you only really learn once you take the thing out of the lab. Carpybara was a sharp reminder of that gap.',
