@@ -332,6 +332,7 @@ export interface ExperienceItem {
 }
 
 export const EXPERIENCE: ExperienceItem[] = [
+  
   {
     role: 'Custom Language Builder — PBL Hackathon',
     company: 'Hackathon project',
@@ -368,6 +369,19 @@ export const EXPERIENCE: ExperienceItem[] = [
       'Designed a full server-client pipeline: ESP32CAM captures and transmits images, backend classifies using a trained neural network model.',
     ],
     tags: ['ESP32CAM', 'C/C++', 'Python', 'FastAPI', 'Deep Learning'],
+  },
+  {
+    role: 'Cohort Class Helper — Computer Network',
+    company: 'Teaching Assistant',
+    period: 'Mar 2025 – Jun 2025',
+    location: 'Computer networks · Mentoring · Faculty study',
+    bullets: [
+      'Mentored students in computer networking through a peer learning program.',
+      'Guided understanding of complex networking concepts and supported collaborative learning.',
+      'Completed in-depth computer-networking study alongside a professor.',
+      'Conducted research on Grover’s algorithm in quantum computing and symmetric-key cryptography.',
+    ],
+    tags: ['Computer Networks', 'Mentoring', 'Teaching', 'Quantum Computing', 'Cryptography'],
   },
 ];
 
