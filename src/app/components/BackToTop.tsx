@@ -17,7 +17,7 @@ export function BackToTop() {
     <button
       type="button"
       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-      className="fixed bottom-6 right-6 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-[#d4e157] text-[#111] shadow-lg shadow-[#d4e157]/20 transition hover:bg-[#e0ee6a] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d4e157] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b0b0b]"
+      className="fixed bottom-6 right-6 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-portfolio text-portfolio-foreground shadow-lg shadow-portfolio/25 transition hover:bg-portfolio-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-portfolio focus-visible:ring-offset-2 focus-visible:ring-offset-[#fafaf8] dark:focus-visible:ring-offset-[#0b0b0b]"
       aria-label="맨 위로"
     >
       <ChevronUp className="h-6 w-6" strokeWidth={2.5} />

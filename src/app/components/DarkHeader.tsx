@@ -41,7 +41,7 @@ export function DarkHeader() {
           {isCaseStudy ? (
             <Link
               to="/#work"
-              className="inline-flex min-w-0 items-center gap-2 font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-[#888] hover:text-[#d4e157] transition-colors sm:text-xs sm:tracking-[0.2em]"
+              className="inline-flex min-w-0 items-center gap-2 font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-portfolio hover:text-portfolio-hover transition-colors sm:text-xs sm:tracking-[0.2em]"
             >
               <ArrowLeft className="size-3.5 shrink-0 sm:size-4" aria-hidden />
               <span className="truncate">Back to portfolio</span>
@@ -49,7 +49,7 @@ export function DarkHeader() {
           ) : (
             <Link
               to="/"
-              className="font-mono text-sm font-semibold text-[#d4e157] tracking-tight hover:text-[#e0ee6a] transition-colors"
+              className="font-mono text-sm font-semibold text-portfolio tracking-tight hover:text-portfolio-hover transition-colors"
             >
               YP
             </Link>
@@ -61,22 +61,30 @@ export function DarkHeader() {
                 key={item.label}
                 to={item.to}
                 {...('state' in item ? { state: item.state } : {})}
-                className="font-mono text-xs uppercase tracking-[0.18em] text-[#606060] hover:text-white transition-colors duration-200"
+                onClick={(e) => {
+                  if (pathname === '/' && item.to.startsWith('/#')) {
+                    e.preventDefault();
+                    document.getElementById(item.to.slice(2))?.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
+                className="font-mono text-xs uppercase tracking-[0.18em] text-portfolio hover:text-portfolio-hover transition-colors duration-200"
               >
                 {item.label}
               </Link>
             ))}
           </nav>
 
-          <button
-            type="button"
-            onClick={() => setOpen(!open)}
-            className="lg:hidden text-[#707070] p-2 hover:text-white transition-colors"
-            aria-expanded={open}
-            aria-label="메뉴"
-          >
-            {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setOpen(!open)}
+              className="lg:hidden text-portfolio p-2 hover:text-portfolio-hover transition-colors"
+              aria-expanded={open}
+              aria-label="메뉴"
+            >
+              {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
         </div>
 
         {open && (
@@ -86,8 +94,14 @@ export function DarkHeader() {
                 key={item.label}
                 to={item.to}
                 {...('state' in item ? { state: item.state } : {})}
-                className="block py-3 font-mono text-xs uppercase tracking-[0.18em] text-[#888] hover:text-white transition-colors"
-                onClick={() => setOpen(false)}
+                className="block py-3 font-mono text-xs uppercase tracking-[0.18em] text-portfolio hover:text-portfolio-hover transition-colors"
+                onClick={(e) => {
+                  setOpen(false);
+                  if (pathname === '/' && item.to.startsWith('/#')) {
+                    e.preventDefault();
+                    document.getElementById(item.to.slice(2))?.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
               >
                 {item.label}
               </Link>

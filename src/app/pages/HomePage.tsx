@@ -20,9 +20,12 @@ export function HomePage() {
       return;
     }
 
-    if (hash === '#contact') {
+    if (hash) {
+      const id = hash.replace('#', '');
+      requestAnimationFrame(() => {
+        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
       navigate('/', { replace: true });
-      window.scrollTo(0, 0);
     }
   }, [pathname, hash, state, navigate]);
 

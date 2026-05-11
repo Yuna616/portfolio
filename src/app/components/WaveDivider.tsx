@@ -8,7 +8,7 @@ export function WaveDivider() {
         하단이 직선(L … Z)이고 상단이 부드러운 곡선 — 흰색이 아래에서 위로 자연스럽게 이어짐
       */}
       <svg
-        className="relative block w-full h-[56px] sm:h-[80px] md:h-[96px] lg:h-[112px] text-white"
+        className="relative block w-full h-[56px] sm:h-[80px] md:h-[96px] lg:h-[112px] text-[#fafaf8] dark:text-white"
         viewBox="0 0 1440 120"
         preserveAspectRatio="none"
         xmlns="http://www.w3.org/2000/svg"

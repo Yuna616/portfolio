@@ -30,8 +30,8 @@ function SectionLabel({ number, title }: { number: string; title: string }) {
       viewport={{ once: true, margin: '-60px' }}
       variants={fadeUp}
     >
-      <p className="font-mono text-[11px] text-[#d4e157] uppercase tracking-[0.35em] mb-3">{number}</p>
-      <h2 className="font-sans text-3xl sm:text-4xl lg:text-5xl font-bold text-white tracking-tight">
+      <p className="font-mono text-[11px] text-portfolio uppercase tracking-[0.35em] mb-3">{number}</p>
+      <h2 className="font-sans text-3xl sm:text-4xl lg:text-5xl font-bold text-neutral-900 tracking-tight dark:text-white">
         {title}
       </h2>
     </motion.div>
@@ -74,14 +74,14 @@ export function AboutSection() {
       {/* ── Work ── */}
       <section
         id="work"
-        className="scroll-mt-24 px-6 md:px-12 lg:px-20 py-24 md:py-32 border-t border-white/[0.06]"
+        className="scroll-mt-24 px-6 md:px-12 lg:px-20 py-24 md:py-32 border-t border-neutral-200 dark:border-white/[0.06]"
       >
         <div className="max-w-6xl mx-auto">
           <SectionLabel number="01 — Selected projects" title="Work" />
 
           {/* Project rows */}
           <motion.div
-            className="divide-y divide-white/[0.06]"
+            className="divide-y divide-neutral-200 dark:divide-white/[0.06]"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: '-80px' }}
@@ -94,23 +94,23 @@ export function AboutSection() {
                 <motion.div key={project.id} variants={fadeUp}>
                   <Link
                     to={`/work/${project.slug}`}
-                    className="group block py-12 md:py-16 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d4e157]/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0a] rounded-sm"
+                    className="group block py-12 md:py-16 focus:outline-none focus-visible:ring-2 focus-visible:ring-portfolio/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fafaf8] dark:focus-visible:ring-offset-[#0a0a0a] rounded-sm"
                   >
                     <div className="flex flex-col lg:flex-row lg:items-center gap-8 lg:gap-16">
                     {/* Text */}
                     <div className="flex-1 min-w-0">
-                      <p className="font-mono text-[11px] text-[#d4e157] uppercase tracking-[0.3em] mb-4">
+                      <p className="font-mono text-[11px] text-portfolio uppercase tracking-[0.3em] mb-4">
                         {project.id.padStart(2, '0')}
                       </p>
                       <h3
-                        className="font-sans font-bold uppercase text-white tracking-[-0.02em] leading-none mb-4 transition-colors duration-300 group-hover:text-[#d4e157]"
+                        className="font-sans font-bold uppercase text-neutral-900 tracking-[-0.02em] leading-none mb-4 transition-colors duration-300 group-hover:text-portfolio dark:text-white"
                         style={{ fontSize: 'clamp(2.5rem, 6vw, 4.5rem)' }}
                       >
                         {project.title}
                       </h3>
-                      <p className="font-mono text-xs text-[#555] mb-5">{project.stack}</p>
-                      <p className="text-[#777] text-sm max-w-sm mb-8 leading-relaxed">{project.tagline}</p>
-                      <span className="font-mono text-xs uppercase tracking-[0.18em] text-[#555] border-b border-white/[0.1] pb-0.5 transition-colors duration-300 group-hover:text-[#d4e157] group-hover:border-[#d4e157]/30">
+                      <p className="font-mono text-xs text-neutral-600 mb-5 dark:text-[#555]">{project.stack}</p>
+                      <p className="text-neutral-600 text-sm max-w-sm mb-8 leading-relaxed dark:text-[#777]">{project.tagline}</p>
+                      <span className="font-mono text-xs uppercase tracking-[0.18em] text-neutral-600 border-b border-neutral-300 pb-0.5 transition-colors duration-300 group-hover:text-portfolio group-hover:border-portfolio/30 dark:text-[#555] dark:border-white/[0.1]">
                         View project →
                       </span>
                     </div>
@@ -118,11 +118,11 @@ export function AboutSection() {
                     {/* Thumbnail */}
                     {thumb && (
                       <div className="w-full lg:w-[42%] shrink-0 overflow-hidden">
-                        <div className="aspect-[16/10] overflow-hidden bg-[#0d0d0d] border border-white/[0.05] transition-colors duration-300 group-hover:border-white/[0.1]">
+                        <div className="aspect-[16/10] overflow-hidden bg-neutral-100 border border-neutral-200 transition-colors duration-300 group-hover:border-neutral-400 dark:bg-[#0d0d0d] dark:border-white/[0.05] dark:group-hover:border-white/[0.1]">
                           <img
                             src={thumb}
                             alt=""
-                            className="w-full h-full object-cover object-top opacity-55 transition-all duration-500 group-hover:opacity-85 group-hover:scale-[1.03]"
+                            className="w-full h-full object-cover object-top opacity-100 transition-all duration-500 group-hover:scale-[1.03] dark:opacity-55 dark:group-hover:opacity-85"
                           />
                         </div>
                       </div>
@@ -139,7 +139,7 @@ export function AboutSection() {
       {/* ── Expertise ── */}
       <section
         id="expertise"
-        className="scroll-mt-24 px-6 md:px-12 lg:px-20 py-24 md:py-32 border-t border-white/[0.06]"
+        className="scroll-mt-24 px-6 md:px-12 lg:px-20 py-24 md:py-32 border-t border-neutral-200 dark:border-white/[0.06]"
       >
         <div className="max-w-6xl mx-auto">
           <SectionLabel number="02 — Capabilities" title="Expertise" />
@@ -178,12 +178,12 @@ export function AboutSection() {
       {/* ── Experience ── */}
       <section
         id="experience"
-        className="scroll-mt-24 px-6 md:px-12 lg:px-20 py-24 md:py-32 border-t border-white/[0.06]"
+        className="scroll-mt-24 px-6 md:px-12 lg:px-20 py-24 md:py-32 border-t border-neutral-200 dark:border-white/[0.06]"
       >
         <div className="max-w-6xl mx-auto">
           <SectionLabel number="03 — Projects & Career" title="Experience" />
           <motion.div
-            className="divide-y divide-white/[0.06]"
+            className="divide-y divide-neutral-200 dark:divide-white/[0.06]"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: '-60px' }}
@@ -197,20 +197,20 @@ export function AboutSection() {
               >
                 <div>
                   <div className="flex flex-wrap items-center gap-2 mb-1">
-                    <h3 className="font-sans text-lg font-semibold text-white">{job.role}</h3>
+                    <h3 className="font-sans text-lg font-semibold text-neutral-900 dark:text-white">{job.role}</h3>
                     {job.team && (
-                      <span className="font-mono text-[10px] uppercase tracking-[0.2em] px-2 py-0.5 border border-[#d4e157]/30 text-[#d4e157]/70">
+                      <span className="font-mono text-[10px] uppercase tracking-[0.2em] px-2 py-0.5 border border-portfolio/30 text-portfolio/70">
                         Team
                       </span>
                     )}
                   </div>
-                  <p className="text-[#d4e157] text-sm mb-2">@ {job.company}</p>
-                  <p className="font-mono text-xs text-[#666] mb-1">{job.period}</p>
-                  <p className="font-mono text-xs text-[#555] mb-4">{job.location}</p>
+                  <p className="text-portfolio text-sm mb-2">@ {job.company}</p>
+                  <p className="font-mono text-xs text-neutral-500 mb-1 dark:text-[#666]">{job.period}</p>
+                  <p className="font-mono text-xs text-neutral-600 mb-4 dark:text-[#555]">{job.location}</p>
                   {job.url && (
                     <a
                       href={job.url}
-                      className="font-mono text-xs text-[#d4e157]/60 hover:text-[#d4e157] underline underline-offset-4 transition-colors"
+                      className="font-mono text-xs text-portfolio/60 hover:text-portfolio underline underline-offset-4 transition-colors"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -223,19 +223,19 @@ export function AboutSection() {
                     <ul className="space-y-3 mb-6">
                       {job.bullets.map((b) => (
                         <li key={b} className="flex gap-3 text-sm leading-relaxed">
-                          <span className="text-[#d4e157]/40 shrink-0 select-none mt-px">—</span>
-                          <span className="text-[#888]">{b}</span>
+                          <span className="text-portfolio/40 shrink-0 select-none mt-px">—</span>
+                          <span className="text-neutral-600 dark:text-[#888]">{b}</span>
                         </li>
                       ))}
                     </ul>
                   ) : job.description ? (
-                    <p className="text-[#888] text-sm leading-relaxed mb-6">{job.description}</p>
+                    <p className="text-neutral-600 text-sm leading-relaxed mb-6 dark:text-[#888]">{job.description}</p>
                   ) : null}
                   <div className="flex flex-wrap gap-2">
                     {job.tags.map((tag) => (
                       <span
                         key={tag}
-                        className="font-mono text-[11px] uppercase tracking-wide px-2.5 py-1 border border-white/[0.08] text-[#666]"
+                        className="font-mono text-[11px] uppercase tracking-wide px-2.5 py-1 border border-neutral-200 text-neutral-600 dark:border-white/[0.08] dark:text-[#666]"
                       >
                         {tag}
                       </span>
@@ -251,7 +251,7 @@ export function AboutSection() {
       {/* ── Contact ── */}
       <section
         id="contact"
-        className="scroll-mt-24 px-6 md:px-12 lg:px-20 py-24 md:py-32 border-t border-white/[0.06]"
+        className="scroll-mt-24 px-6 md:px-12 lg:px-20 py-24 md:py-32 border-t border-neutral-200 dark:border-white/[0.06]"
       >
         <div className="max-w-6xl mx-auto">
           <motion.div
@@ -260,10 +260,10 @@ export function AboutSection() {
             viewport={{ once: true, margin: '-60px' }}
             variants={fadeUp}
           >
-            <p className="font-mono text-[11px] text-[#d4e157] uppercase tracking-[0.35em] mb-4">
+            <p className="font-mono text-[11px] text-portfolio uppercase tracking-[0.35em] mb-4">
               04 — Get in touch
             </p>
-            <h2 className="font-sans text-3xl sm:text-4xl font-bold text-white mb-10 max-w-lg">
+            <h2 className="font-sans text-3xl sm:text-4xl font-bold text-neutral-900 mb-10 max-w-lg dark:text-white">
               Have a question or want to work together?
             </h2>
           </motion.div>
@@ -272,7 +272,7 @@ export function AboutSection() {
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="font-mono text-sm text-[#d4e157] py-4"
+              className="font-mono text-sm text-portfolio py-4"
             >
               Message sent. Thanks!
             </motion.p>
@@ -306,7 +306,7 @@ export function AboutSection() {
                   required
                   disabled={submitting}
                   placeholder="Email"
-                  className="w-full border-b border-white/[0.12] bg-transparent px-0 py-3 text-sm text-white placeholder:text-[#444] focus:outline-none focus:border-[#d4e157]/50 transition-colors disabled:opacity-50"
+                  className="w-full border-b border-neutral-300 bg-transparent px-0 py-3 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:border-portfolio/50 transition-colors disabled:opacity-50 dark:border-white/[0.12] dark:text-white dark:placeholder:text-[#444]"
                 />
               </motion.div>
               <motion.div variants={fadeUp}>
@@ -320,7 +320,7 @@ export function AboutSection() {
                   rows={5}
                   disabled={submitting}
                   placeholder="Your message"
-                  className="w-full border-b border-white/[0.12] bg-transparent px-0 py-3 text-sm text-white placeholder:text-[#444] focus:outline-none focus:border-[#d4e157]/50 transition-colors resize-none min-h-[120px] disabled:opacity-50"
+                  className="w-full border-b border-neutral-300 bg-transparent px-0 py-3 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:border-portfolio/50 transition-colors resize-none min-h-[120px] disabled:opacity-50 dark:border-white/[0.12] dark:text-white dark:placeholder:text-[#444]"
                 />
               </motion.div>
               {sendError ? (
@@ -332,7 +332,7 @@ export function AboutSection() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="rounded-none font-mono text-xs uppercase tracking-[0.2em] px-8 py-3 bg-[#d4e157] text-[#0a0a0a] font-bold transition-colors hover:bg-[#e0ee6a] disabled:opacity-50 disabled:pointer-events-none"
+                  className="rounded-none font-mono text-xs uppercase tracking-[0.2em] px-8 py-3 bg-portfolio text-portfolio-foreground font-bold transition-colors hover:bg-portfolio-hover disabled:opacity-50 disabled:pointer-events-none"
                 >
                   {submitting ? 'Sending…' : 'Submit'}
                 </button>
@@ -362,35 +362,36 @@ function ExpertiseItem({
 
   return (
     <motion.article
-      className="group relative border border-white/[0.07] bg-white/[0.015] p-8 overflow-hidden
-                 hover:border-[#d4e157]/25 hover:bg-white/[0.03] transition-all duration-500 cursor-default"
+      className="group relative border border-neutral-200 bg-white p-8 overflow-hidden shadow-sm
+                 hover:border-portfolio/25 hover:bg-[#fafaf8] transition-all duration-500 cursor-default
+                 dark:border-white/[0.07] dark:bg-white/[0.015] dark:shadow-none dark:hover:bg-white/[0.03]"
       variants={fadeUp}
     >
       {/* Top accent line — slides in on hover */}
-      <div className="absolute top-0 left-0 h-[2px] w-0 bg-gradient-to-r from-[#d4e157] to-[#d4e157]/30 group-hover:w-full transition-all duration-500 ease-out" />
+      <div className="absolute top-0 left-0 h-[2px] w-0 bg-gradient-to-r from-portfolio to-portfolio/30 group-hover:w-full transition-all duration-500 ease-out" />
 
       {/* Ghost number */}
       <span className="absolute bottom-4 right-5 font-sans font-black select-none pointer-events-none
-                       text-[6rem] leading-none text-white/[0.03] group-hover:text-[#d4e157]/[0.07]
-                       transition-colors duration-500">
+                       text-[6rem] leading-none text-neutral-200 group-hover:text-portfolio/[0.12]
+                       transition-colors duration-500 dark:text-white/[0.03] dark:group-hover:text-portfolio/[0.07]">
         {num}
       </span>
 
       {/* Number tag */}
-      <p className="font-mono text-[10px] text-[#d4e157] uppercase tracking-[0.35em] mb-6">{num}</p>
+      <p className="font-mono text-[10px] text-portfolio uppercase tracking-[0.35em] mb-6">{num}</p>
 
       {/* Title */}
-      <h3 className="font-sans text-2xl font-bold text-white leading-tight mb-1
-                     group-hover:text-[#d4e157] transition-colors duration-300">
+      <h3 className="font-sans text-2xl font-bold text-neutral-900 leading-tight mb-1
+                     group-hover:text-portfolio transition-colors duration-300 dark:text-white">
         {titleTop}
       </h3>
-      <p className="font-mono text-[11px] text-[#d4e157]/45 mb-6">{titleBottom}</p>
+      <p className="font-mono text-[11px] text-portfolio/45 mb-6">{titleBottom}</p>
 
       {/* Divider */}
-      <div className="h-px bg-white/[0.06] mb-6 group-hover:bg-[#d4e157]/10 transition-colors duration-300" />
+      <div className="h-px bg-neutral-200 mb-6 group-hover:bg-portfolio/10 transition-colors duration-300 dark:bg-white/[0.06]" />
 
       {/* Body */}
-      <p className="text-[#777] text-sm leading-relaxed mb-7">{body}</p>
+      <p className="text-neutral-600 text-sm leading-relaxed mb-7 dark:text-[#777]">{body}</p>
 
       {/* Tag chips */}
       <div className="flex flex-wrap gap-2">
@@ -398,9 +399,9 @@ function ExpertiseItem({
           <span
             key={tag}
             className="font-mono text-[10px] uppercase tracking-wide px-2.5 py-1
-                       border border-white/[0.07] text-[#505050]
-                       group-hover:border-[#d4e157]/20 group-hover:text-[#777]
-                       transition-all duration-300"
+                       border border-neutral-200 text-neutral-600
+                       group-hover:border-portfolio/20 group-hover:text-neutral-700
+                       transition-all duration-300 dark:border-white/[0.07] dark:text-[#505050] dark:group-hover:text-[#777]"
           >
             {tag}
           </span>
