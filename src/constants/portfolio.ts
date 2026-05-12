@@ -157,7 +157,7 @@ void sensorTask(void*) {
       ],
       fabrication: {
         text: 'To move Carpybara from breadboard to a device that could actually sit inside a car, we visited UCI FabWorks for a hands-on fabrication session. The enclosure was 3D-printed to house the ESP32-S3, TFT display, and sensor modules within a compact, mountable form factor. Sensor leads were hand-soldered—GPS module over UART2, MPU-6050 over I2C—locking in the physical wiring the firmware already assumed. Working through real tolerances, heat, and cable routing surfaced integration details that only appear when you hold the hardware.',
-        images: ['/carpybara_3.jpg', '/carpybara_6.png','/carpybara_4.jpg'],
+        images: ['/carpybara_3.jpg','/carpybara_7.png' ,'/carpybara_6.png','/carpybara_4.jpg'],
       },
       fieldTest: {
         text: 'To validate the experience in a real cabin, I visited the Rivian showroom at Irvine Spectrum Center and ran the device against an actual vehicle. Testing on a production EV confirmed that sensor readings and UI responses held up outside the lab—and surfaced edge cases in ambient light and mounting angle that only a real interior could reveal.',
