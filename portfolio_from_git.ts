@@ -136,8 +136,7 @@ static void networkTask(void*) {
     description:
       'A browser extension for EasyEDA that offers real-time AI coaching during PCB schematic work. Includes a JavaScript circuit engine to read schematic state and a message bridge to a Python backend, plus a pcb-schematic-api layer for programmatic validation of placements and connections.',
     url: 'https://github.com/Yuna616/PCB_Agent',
-    images: ['/PCB_2.png','/PCB_1.png','/pcb_demo_1.mp4'],
-    heroImage: '/pcb_demo_1.mp4',
+    images: ['https://picsum.photos/seed/pcb-agent/1600/900'],
     caseStudy: {
       meta: {
         platform: 'Browser extension 쨌 Web + Python services',
