@@ -39,9 +39,9 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(0.269 0 0);
   --sidebar-ring: oklch(0.439 0 0);
-  --portfolio-accent: #d4e157;
-  --portfolio-accent-hover: #e0ee6a;
-  --portfolio-on-accent: #0a0a0a;
+  --portfolio-accent: #4f46e5;
+  --portfolio-accent-hover: #4338ca;
+  --portfolio-on-accent: #ffffff;
 }
 
 @theme inline {
@@ -161,5 +161,38 @@
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-size: inherit;
     line-height: inherit;
+  }
+
+  /* Hides the scrollbar track/thumb while keeping the element scrollable */
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* A dot riding along a connector line — used by the sensor pipeline diagram to read as live data flow */
+  @keyframes flow-move {
+    0% { left: 0%; opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { left: 100%; opacity: 0; }
+  }
+
+  /* Vertical variant — used by the on-device pipeline diagram's top-to-bottom step connectors */
+  @keyframes flow-move-y {
+    0% { top: 0%; opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { top: 100%; opacity: 0; }
+  }
+
+  /* A light sweep across a badge, then a pause before it repeats — used by the program badge on timeline cards */
+  @keyframes shine {
+    0% { transform: translateX(0%) skewX(-12deg); }
+    22% { transform: translateX(420%) skewX(-12deg); }
+    100% { transform: translateX(420%) skewX(-12deg); }
   }
 }
