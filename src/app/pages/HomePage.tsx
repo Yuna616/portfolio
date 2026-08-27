@@ -1,8 +1,10 @@
 import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import type { HomeLocationState } from '../../constants/navigation';
-import { HeroSection } from '../components/HeroSection';
-import { AboutSection } from '../components/AboutSection';
+import { TimelineHero } from '../components/timeline/TimelineHero';
+import { Timeline } from '../components/timeline/Timeline';
+import { SkillsSection } from '../components/timeline/SkillsSection';
+import { ContactSection } from '../components/ContactSection';
 
 export function HomePage() {
   const { pathname, hash, state } = useLocation();
@@ -31,8 +33,10 @@ export function HomePage() {
 
   return (
     <>
-      <HeroSection />
-      <AboutSection />
+      <TimelineHero />
+      <Timeline />
+      <SkillsSection />
+      <ContactSection />
     </>
   );
 }

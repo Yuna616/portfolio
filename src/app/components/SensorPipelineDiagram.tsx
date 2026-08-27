@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ChevronRight } from 'lucide-react';
 
 type NodeId = 'gps' | 'imu' | 'sensor-task' | 'sensor-state' | 'display-task' | 'network-task';
 
@@ -11,473 +12,190 @@ const CONNECTIONS: Record<NodeId, NodeId[]> = {
   'network-task': ['sensor-state'],
 };
 
+const NODE_META: Record<NodeId, { eyebrow: string; name: string; sub: string }> = {
+  'gps':          { eyebrow: 'GPS', name: 'HGLRC M100', sub: 'NMEA · UART2' },
+  'imu':          { eyebrow: 'IMU', name: 'MPU-6050', sub: 'accel · gyro · I2C' },
+  'sensor-task':  { eyebrow: 'Core 0 · 20 Hz', name: 'SensorTask', sub: 'brake/bump · speed filter' },
+  'sensor-state': { eyebrow: 'Shared memory', name: 'SensorState', sub: 'mutex snapshot' },
+  'display-task': { eyebrow: 'Core 1 · 60 Hz', name: 'DisplayTask', sub: '→ TFT · SLEEP/WALK/RUN/TURBO' },
+  'network-task': { eyebrow: 'Core 0 · 100 Hz', name: 'NetworkTask', sub: '→ /api/state (JSON)' },
+};
+
 const DESCRIPTIONS: Record<NodeId, { title: string; body: string }> = {
   'gps': {
     title: 'HGLRC M100 — GPS',
-    body: 'Streams NMEA sentences over UART2. TinyGPSPlus parses each frame and extracts speed (kmph), latitude/longitude, and satellite count whenever isUpdated() fires.',
+    body: 'Streams NMEA sentences over UART2 at the module\'s factory 1 Hz rate. TinyGPSPlus parses each frame and extracts speed — derived directly from the Doppler shift of the satellite signal, accurate to roughly 0.1 m/s — plus latitude/longitude and satellite count whenever isUpdated() fires.',
   },
   'imu': {
     title: 'MPU-6050 — IMU',
-    body: 'Delivers raw accelerometer values over I2C. SensorTask checks ax < −0.35 g sustained for 80 ms to latch brake_active, and |az| > 1.8 g instantly for bump_active — both held for 2 s.',
+    body: 'Delivers raw accelerometer values over I2C at 20 Hz. SensorTask checks ax < −0.35 g sustained for 80 ms to latch brake_active, and |az| > 1.8 g instantly for bump_active — both held for 2 s. The same ax stream is integrated between GPS fixes to smooth the displayed speed.',
   },
   'sensor-task': {
     title: 'SensorTask — Core 0 · 20 Hz',
-    body: 'Reads both sensors every 50 ms and writes results into SensorState under mutex protection. The single source of truth — all downstream consumers read from here, never the hardware directly.',
+    body: 'Reads both sensors every 50 ms and writes results into SensorState under mutex protection. Between the GPS\'s 1 Hz fixes, it integrates IMU acceleration into a complementary filter (speed_mph_smooth); each new GPS fix re-anchors that estimate at 30% IMU / 70% GPS so drift can\'t accumulate. The single source of truth — all downstream consumers read from here, never the hardware directly.',
   },
   'sensor-state': {
     title: 'SensorState — Shared Memory',
-    body: 'A mutex-guarded struct holding speed, position, satellite count, IMU g-values, and event latches. petSensorRead() provides a thread-safe snapshot to any task at any time.',
+    body: 'A mutex-guarded struct holding raw and smoothed speed (speed_mph / speed_mph_smooth), position, satellite count, IMU g-values, and event latches. petSensorRead() provides a thread-safe snapshot to any task at any time.',
   },
   'display-task': {
     title: 'DisplayTask — Core 1 · 60 Hz',
-    body: 'Snapshots SensorState every 16 ms and drives the TFT. Speed maps to SLEEP (0) → WALK (1–50 km/h) → RUN (51–90) → TURBO (91+). Brake triggers a skid-mark overlay.',
+    body: 'Snapshots SensorState every 16 ms and drives the TFT, animating speed_mph_smooth so the GPS\'s 1 Hz steps read as continuous motion: SLEEP → WALK → RUN → TURBO. Brake triggers a skid-mark overlay.',
   },
   'network-task': {
     title: 'NetworkTask — Core 0 · 100 Hz',
-    body: 'Serves GET /api/state by reading SensorState and serialising it as JSON. The companion phone app polls at 1 Hz, mapping speed and brake_active to animation state and speech lines.',
+    body: 'Serves GET /api/state by reading SensorState and serialising it as JSON — speed_mph_smooth, brake/bump flags, GPS fix. The companion phone app polls at 1 Hz, mapping speed and brake_active to animation state and speech lines.',
   },
 };
 
-const T = 'transition: opacity 0.22s ease, stroke-width 0.22s ease';
+function NodeCard({
+  id,
+  state,
+  onClick,
+}: {
+  id: NodeId;
+  state: 'selected' | 'connected' | 'idle' | 'dim';
+  onClick: () => void;
+}) {
+  const m = NODE_META[id];
+  const styles: Record<typeof state, string> = {
+    selected: 'border-portfolio bg-portfolio/[0.06] shadow-md scale-[1.02]',
+    connected: 'border-portfolio/50 bg-portfolio/[0.03]',
+    idle: 'border-neutral-200 bg-white hover:border-portfolio/50 hover:shadow-sm',
+    dim: 'border-neutral-100 bg-neutral-50 opacity-50',
+  };
 
-type StrokeFn = (sel: boolean) => string;
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={state === 'selected'}
+      className={`w-full text-left rounded-lg border-2 px-4 py-3.5 transition-all duration-200 ${styles[state]}`}
+    >
+      <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-neutral-600 mb-1">{m.eyebrow}</p>
+      <p className="font-bold text-neutral-900 text-[15px] leading-tight">{m.name}</p>
+      <p className="text-xs text-neutral-700 mt-1">{m.sub}</p>
+    </button>
+  );
+}
 
-type DiagramPalette = {
-  wire: string;
-  wireDot: string;
-  markerArrow: string;
-  gpsStroke: StrokeFn;
-  gpsFillSel: string;
-  gpsT1: string;
-  gpsT2: string;
-  gpsT3: string;
-  imuStroke: StrokeFn;
-  imuFillSel: string;
-  imuT1: string;
-  imuT2: string;
-  imuT3: string;
-  stFillSel: string;
-  stStroke: StrokeFn;
-  stT1: string;
-  stT2: string;
-  stT3: string;
-  ssStroke: StrokeFn;
-  ssFillSel: string;
-  ssT1: string;
-  ssT2: string;
-  ssT3: string;
-  dtStroke: StrokeFn;
-  dtFillSel: string;
-  dtT1: string;
-  dtT2: string;
-  dtT3: string;
-  ntStroke: StrokeFn;
-  ntFillSel: string;
-  ntT1: string;
-  ntT2: string;
-  ntT3: string;
-  uart2: string;
-  i2c: string;
-};
+/** A moving dot riding along one horizontal line segment — reads as data actively flowing through the pipeline. */
+function FlowDot({ delay = 0 }: { delay?: number }) {
+  return (
+    <span
+      aria-hidden
+      className="absolute top-1/2 size-1.5 -translate-y-1/2 -translate-x-1/2 rounded-full bg-portfolio"
+      style={{ animation: `flow-move 2.2s linear ${delay}s infinite` }}
+    />
+  );
+}
 
-const PALETTE_DARK: DiagramPalette = {
-  wire: 'rgba(255,255,255,0.18)',
-  wireDot: 'rgba(255,255,255,0.18)',
-  markerArrow: 'rgba(255,255,255,0.22)',
-  gpsStroke: (sel) => (sel ? 'rgba(212,225,87,0.8)' : 'rgba(212,225,87,0.35)'),
-  gpsFillSel: 'rgba(212,225,87,0.07)',
-  gpsT1: 'rgba(212,225,87,0.45)',
-  gpsT2: 'rgba(212,225,87,0.85)',
-  gpsT3: 'rgba(212,225,87,0.35)',
-  imuStroke: (sel) => (sel ? 'rgba(100,181,246,0.8)' : 'rgba(100,181,246,0.35)'),
-  imuFillSel: 'rgba(100,181,246,0.07)',
-  imuT1: 'rgba(100,181,246,0.45)',
-  imuT2: 'rgba(100,181,246,0.85)',
-  imuT3: 'rgba(100,181,246,0.35)',
-  stFillSel: 'rgba(255,255,255,0.05)',
-  stStroke: (sel) => (sel ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.28)'),
-  stT1: 'rgba(255,255,255,0.3)',
-  stT2: 'rgba(255,255,255,0.9)',
-  stT3: 'rgba(255,255,255,0.22)',
-  ssStroke: (sel) => (sel ? 'rgba(255,152,0,0.85)' : 'rgba(255,152,0,0.4)'),
-  ssFillSel: 'rgba(255,152,0,0.07)',
-  ssT1: 'rgba(255,152,0,0.4)',
-  ssT2: 'rgba(255,152,0,0.85)',
-  ssT3: 'rgba(255,152,0,0.3)',
-  dtStroke: (sel) => (sel ? 'rgba(129,199,132,0.8)' : 'rgba(129,199,132,0.35)'),
-  dtFillSel: 'rgba(129,199,132,0.07)',
-  dtT1: 'rgba(129,199,132,0.4)',
-  dtT2: 'rgba(129,199,132,0.85)',
-  dtT3: 'rgba(129,199,132,0.35)',
-  ntStroke: (sel) => (sel ? 'rgba(206,147,216,0.8)' : 'rgba(206,147,216,0.35)'),
-  ntFillSel: 'rgba(206,147,216,0.07)',
-  ntT1: 'rgba(206,147,216,0.4)',
-  ntT2: 'rgba(206,147,216,0.85)',
-  ntT3: 'rgba(206,147,216,0.35)',
-  uart2: 'rgba(212,225,87,0.35)',
-  i2c: 'rgba(100,181,246,0.35)',
-};
+/** One straight animated segment, positioned absolutely within its connector container via `top`/`left`/`width` (percentages of the container). */
+function Line({ top, left, width, delay }: { top: string; left: string; width: string; delay?: number }) {
+  return (
+    <div className="absolute h-px bg-neutral-200" style={{ top, left, width }}>
+      <FlowDot delay={delay} />
+    </div>
+  );
+}
+
+/** Static (non-animated) straight segment — used for the vertical strokes of a merge/split bracket. */
+function StaticLine({ top, left, height }: { top: string; left: string; height: string }) {
+  return <div className="absolute w-px bg-neutral-200" style={{ top, left, height }} />;
+}
+
+function ArrowHead({ top }: { top: string }) {
+  return (
+    <ChevronRight
+      aria-hidden
+      className="absolute right-0 size-3.5 -translate-y-1/2 text-neutral-300"
+      style={{ top }}
+    />
+  );
+}
+
+const CONNECTOR_CLASS = 'relative w-10 shrink-0 self-stretch sm:w-14';
+
+/** 1 → 1 straight connector, e.g. SensorTask → SensorState. */
+function StraightArrow() {
+  return (
+    <div className={CONNECTOR_CLASS} aria-hidden>
+      <Line top="50%" left="0%" width="100%" />
+      <ArrowHead top="50%" />
+    </div>
+  );
+}
+
+/** 2 → 1 bracket connector, e.g. { GPS, IMU } → SensorTask. */
+function MergeArrow() {
+  return (
+    <div className={CONNECTOR_CLASS} aria-hidden>
+      <Line top="25%" left="0%" width="50%" delay={0} />
+      <Line top="75%" left="0%" width="50%" delay={0.25} />
+      <StaticLine top="25%" left="50%" height="50%" />
+      <Line top="50%" left="50%" width="50%" delay={0.5} />
+      <ArrowHead top="50%" />
+    </div>
+  );
+}
+
+/** 1 → 2 bracket connector, e.g. SensorState → { DisplayTask, NetworkTask }. */
+function SplitArrow() {
+  return (
+    <div className={CONNECTOR_CLASS} aria-hidden>
+      <Line top="50%" left="0%" width="50%" delay={0} />
+      <StaticLine top="25%" left="50%" height="50%" />
+      <Line top="25%" left="50%" width="50%" delay={0.25} />
+      <Line top="75%" left="50%" width="50%" delay={0.5} />
+      <ArrowHead top="25%" />
+      <ArrowHead top="75%" />
+    </div>
+  );
+}
 
 export function SensorPipelineDiagram() {
   const [selected, setSelected] = useState<NodeId | null>(null);
-  const p: DiagramPalette = PALETTE_DARK;
 
-  const toggle = (id: NodeId) =>
-    setSelected((prev) => (prev === id ? null : id));
+  const toggle = (id: NodeId) => setSelected((prev) => (prev === id ? null : id));
 
-  const nodeOp = (id: NodeId) => {
-    if (!selected) return 1;
-    if (selected === id || CONNECTIONS[selected].includes(id)) return 1;
-    return 0.15;
+  const stateOf = (id: NodeId): 'selected' | 'connected' | 'idle' | 'dim' => {
+    if (!selected) return 'idle';
+    if (selected === id) return 'selected';
+    if (CONNECTIONS[selected].includes(id)) return 'connected';
+    return 'dim';
   };
-
-  const pathOp = (from: NodeId, to: NodeId) => {
-    if (!selected) return 1;
-    if (selected === from || selected === to) return 1;
-    return 0.08;
-  };
-
-  const dotOp = (...ids: NodeId[]) => {
-    if (!selected) return 1;
-    if (ids.some((id) => id === selected || CONNECTIONS[selected].includes(id))) return 1;
-    return 0.08;
-  };
-
-  const sel = (id: NodeId) => selected === id;
 
   return (
-    <div className="rounded-sm border border-white/[0.08] bg-[#0e0e0e] p-5 overflow-x-auto shadow-none">
-      <p className="font-mono text-[9px] uppercase tracking-[0.28em] text-white/25 mb-1">
-        Data flow
-      </p>
-      <p className="font-mono text-[8px] text-white/15 mb-5 tracking-wide">
-        click a node to explore
-      </p>
+    <div className="rounded-lg border border-neutral-200 bg-white p-5 sm:p-7">
+      <p className="font-mono text-xs uppercase tracking-[0.2em] text-neutral-700 mb-1">Data flow</p>
+      <p className="font-mono text-xs text-neutral-700 mb-6">Click a node to explore</p>
 
-      <div className="rounded-md border-0 bg-[#0e0e0e] overflow-x-auto">
-        <svg
-          viewBox="0 0 670 165"
-          className="w-full min-w-[520px]"
-          aria-label="Sensor pipeline data flow diagram"
-          style={{ fontFamily: 'ui-monospace, monospace' }}
-        >
-          <defs>
-            <marker id="spd-arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
-              <path d="M0,0 L0,7 L7,3.5 z" fill={p.markerArrow} />
-            </marker>
-          </defs>
+      <div className="no-scrollbar -mx-1 overflow-x-auto px-1">
+        <div className="mx-auto flex w-max min-w-full items-stretch justify-center gap-0 py-2">
+          <div className="flex w-36 shrink-0 flex-col justify-center gap-3 sm:w-40">
+            <NodeCard id="gps" state={stateOf('gps')} onClick={() => toggle('gps')} />
+            <NodeCard id="imu" state={stateOf('imu')} onClick={() => toggle('imu')} />
+          </div>
 
-          {/* ── GPS ── */}
-          <g style={{ opacity: nodeOp('gps'), cursor: 'pointer', transition: 'opacity 0.22s ease' }}>
-            <rect
-              x="0"
-              y="12"
-              width="115"
-              height="50"
-              rx="3"
-              fill={sel('gps') ? p.gpsFillSel : 'none'}
-              stroke={p.gpsStroke(sel('gps'))}
-              strokeWidth={sel('gps') ? 1.5 : 1}
-              style={{ transition: T }}
-              pointerEvents="none"
-            />
-            <text x="57" y="31" textAnchor="middle" fontSize="8" fill={p.gpsT1} letterSpacing="1.5" pointerEvents="none">
-              GPS
-            </text>
-            <text x="57" y="46" textAnchor="middle" fontSize="11" fontWeight="700" fill={p.gpsT2} pointerEvents="none">
-              HGLRC M100
-            </text>
-            <text x="57" y="58" textAnchor="middle" fontSize="8" fill={p.gpsT3} pointerEvents="none">
-              NMEA · UART2
-            </text>
-            <rect
-              x="0"
-              y="12"
-              width="115"
-              height="50"
-              rx="3"
-              fill="transparent"
-              onClick={() => toggle('gps')}
-              style={{ cursor: 'pointer' }}
-            />
-          </g>
+          <MergeArrow />
 
-          {/* ── IMU ── */}
-          <g style={{ opacity: nodeOp('imu'), cursor: 'pointer', transition: 'opacity 0.22s ease' }}>
-            <rect
-              x="0"
-              y="103"
-              width="115"
-              height="50"
-              rx="3"
-              fill={sel('imu') ? p.imuFillSel : 'none'}
-              stroke={p.imuStroke(sel('imu'))}
-              strokeWidth={sel('imu') ? 1.5 : 1}
-              style={{ transition: T }}
-              pointerEvents="none"
-            />
-            <text x="57" y="122" textAnchor="middle" fontSize="8" fill={p.imuT1} letterSpacing="1.5" pointerEvents="none">
-              IMU
-            </text>
-            <text x="57" y="137" textAnchor="middle" fontSize="11" fontWeight="700" fill={p.imuT2} pointerEvents="none">
-              MPU-6050
-            </text>
-            <text x="57" y="149" textAnchor="middle" fontSize="8" fill={p.imuT3} pointerEvents="none">
-              accel · gyro · I2C
-            </text>
-            <rect
-              x="0"
-              y="103"
-              width="115"
-              height="50"
-              rx="3"
-              fill="transparent"
-              onClick={() => toggle('imu')}
-              style={{ cursor: 'pointer' }}
-            />
-          </g>
+          <div className="flex w-36 shrink-0 flex-col justify-center sm:w-40">
+            <NodeCard id="sensor-task" state={stateOf('sensor-task')} onClick={() => toggle('sensor-task')} />
+          </div>
 
-          {/* ── Path: GPS → merge ── */}
-          <g
-            style={{ opacity: pathOp('gps', 'sensor-task'), transition: 'opacity 0.22s ease', pointerEvents: 'none' }}
-          >
-            <polyline
-              points="115,37 148,37 148,82 163,82"
-              fill="none"
-              stroke={p.wire}
-              strokeWidth="1"
-              markerEnd="url(#spd-arr)"
-            />
-            <text x="131" y="33" textAnchor="middle" fontSize="7.5" fill={p.uart2}>
-              UART2
-            </text>
-          </g>
+          <StraightArrow />
 
-          {/* ── Path: IMU → merge ── */}
-          <g
-            style={{ opacity: pathOp('imu', 'sensor-task'), transition: 'opacity 0.22s ease', pointerEvents: 'none' }}
-          >
-            <polyline points="115,128 148,128 148,82" fill="none" stroke={p.wire} strokeWidth="1" />
-            <text x="131" y="142" textAnchor="middle" fontSize="7.5" fill={p.i2c}>
-              I2C
-            </text>
-          </g>
+          <div className="flex w-36 shrink-0 flex-col justify-center sm:w-40">
+            <NodeCard id="sensor-state" state={stateOf('sensor-state')} onClick={() => toggle('sensor-state')} />
+          </div>
 
-          {/* merge dot */}
-          <circle
-            cx="148"
-            cy="82"
-            r="2.5"
-            fill={p.wireDot}
-            style={{ opacity: dotOp('gps', 'imu', 'sensor-task'), transition: 'opacity 0.22s ease', pointerEvents: 'none' }}
-          />
+          <SplitArrow />
 
-          {/* ── SensorTask ── */}
-          <g style={{ opacity: nodeOp('sensor-task'), cursor: 'pointer', transition: 'opacity 0.22s ease' }}>
-            <rect
-              x="163"
-              y="57"
-              width="138"
-              height="50"
-              rx="3"
-              fill={sel('sensor-task') ? p.stFillSel : 'none'}
-              stroke={p.stStroke(sel('sensor-task'))}
-              strokeWidth={sel('sensor-task') ? 1.5 : 1}
-              style={{ transition: T }}
-              pointerEvents="none"
-            />
-            <text x="232" y="76" textAnchor="middle" fontSize="8" fill={p.stT1} letterSpacing="1.5" pointerEvents="none">
-              CORE 0 · 20 Hz
-            </text>
-            <text x="232" y="91" textAnchor="middle" fontSize="12" fontWeight="700" fill={p.stT2} pointerEvents="none">
-              SensorTask
-            </text>
-            <text x="232" y="102" textAnchor="middle" fontSize="8" fill={p.stT3} pointerEvents="none">
-              brake · bump detection
-            </text>
-            <rect
-              x="163"
-              y="57"
-              width="138"
-              height="50"
-              rx="3"
-              fill="transparent"
-              onClick={() => toggle('sensor-task')}
-              style={{ cursor: 'pointer' }}
-            />
-          </g>
-
-          {/* ── Path: SensorTask → SensorState ── */}
-          <g
-            style={{
-              opacity: pathOp('sensor-task', 'sensor-state'),
-              transition: 'opacity 0.22s ease',
-              pointerEvents: 'none',
-            }}
-          >
-            <line
-              x1="301"
-              y1="82"
-              x2="340"
-              y2="82"
-              stroke={p.wire}
-              strokeWidth="1"
-              markerEnd="url(#spd-arr)"
-            />
-          </g>
-
-          {/* ── SensorState ── */}
-          <g style={{ opacity: nodeOp('sensor-state'), cursor: 'pointer', transition: 'opacity 0.22s ease' }}>
-            <rect
-              x="340"
-              y="57"
-              width="138"
-              height="50"
-              rx="3"
-              fill={sel('sensor-state') ? p.ssFillSel : 'none'}
-              stroke={p.ssStroke(sel('sensor-state'))}
-              strokeWidth={sel('sensor-state') ? 1.5 : 1}
-              style={{ transition: T }}
-              pointerEvents="none"
-            />
-            <text x="409" y="76" textAnchor="middle" fontSize="8" fill={p.ssT1} letterSpacing="1.5" pointerEvents="none">
-              SHARED MEMORY
-            </text>
-            <text x="409" y="91" textAnchor="middle" fontSize="12" fontWeight="700" fill={p.ssT2} pointerEvents="none">
-              SensorState
-            </text>
-            <text x="409" y="102" textAnchor="middle" fontSize="8" fill={p.ssT3} pointerEvents="none">
-              mutex snapshot
-            </text>
-            <rect
-              x="340"
-              y="57"
-              width="138"
-              height="50"
-              rx="3"
-              fill="transparent"
-              onClick={() => toggle('sensor-state')}
-              style={{ cursor: 'pointer' }}
-            />
-          </g>
-
-          {/* ── Path: SensorState → DisplayTask ── */}
-          <g
-            style={{
-              opacity: pathOp('sensor-state', 'display-task'),
-              transition: 'opacity 0.22s ease',
-              pointerEvents: 'none',
-            }}
-          >
-            <polyline
-              points="478,82 510,82 510,37 525,37"
-              fill="none"
-              stroke={p.wire}
-              strokeWidth="1"
-              markerEnd="url(#spd-arr)"
-            />
-          </g>
-
-          {/* ── Path: SensorState → NetworkTask ── */}
-          <g
-            style={{
-              opacity: pathOp('sensor-state', 'network-task'),
-              transition: 'opacity 0.22s ease',
-              pointerEvents: 'none',
-            }}
-          >
-            <polyline
-              points="510,82 510,128 525,128"
-              fill="none"
-              stroke={p.wire}
-              strokeWidth="1"
-              markerEnd="url(#spd-arr)"
-            />
-          </g>
-
-          {/* split dot */}
-          <circle
-            cx="510"
-            cy="82"
-            r="2.5"
-            fill={p.wireDot}
-            style={{
-              opacity: dotOp('sensor-state', 'display-task', 'network-task'),
-              transition: 'opacity 0.22s ease',
-              pointerEvents: 'none',
-            }}
-          />
-
-          {/* ── DisplayTask ── */}
-          <g style={{ opacity: nodeOp('display-task'), cursor: 'pointer', transition: 'opacity 0.22s ease' }}>
-            <rect
-              x="525"
-              y="12"
-              width="145"
-              height="50"
-              rx="3"
-              fill={sel('display-task') ? p.dtFillSel : 'none'}
-              stroke={p.dtStroke(sel('display-task'))}
-              strokeWidth={sel('display-task') ? 1.5 : 1}
-              style={{ transition: T }}
-              pointerEvents="none"
-            />
-            <text x="597" y="31" textAnchor="middle" fontSize="8" fill={p.dtT1} letterSpacing="1.5" pointerEvents="none">
-              CORE 1 · 60 Hz
-            </text>
-            <text x="597" y="46" textAnchor="middle" fontSize="11" fontWeight="700" fill={p.dtT2} pointerEvents="none">
-              DisplayTask
-            </text>
-            <text x="597" y="58" textAnchor="middle" fontSize="8" fill={p.dtT3} pointerEvents="none">
-              → TFT · SLEEP/WALK/RUN/TURBO
-            </text>
-            <rect
-              x="525"
-              y="12"
-              width="145"
-              height="50"
-              rx="3"
-              fill="transparent"
-              onClick={() => toggle('display-task')}
-              style={{ cursor: 'pointer' }}
-            />
-          </g>
-
-          {/* ── NetworkTask ── */}
-          <g style={{ opacity: nodeOp('network-task'), cursor: 'pointer', transition: 'opacity 0.22s ease' }}>
-            <rect
-              x="525"
-              y="103"
-              width="145"
-              height="50"
-              rx="3"
-              fill={sel('network-task') ? p.ntFillSel : 'none'}
-              stroke={p.ntStroke(sel('network-task'))}
-              strokeWidth={sel('network-task') ? 1.5 : 1}
-              style={{ transition: T }}
-              pointerEvents="none"
-            />
-            <text x="597" y="122" textAnchor="middle" fontSize="8" fill={p.ntT1} letterSpacing="1.5" pointerEvents="none">
-              CORE 0 · 100 Hz
-            </text>
-            <text x="597" y="137" textAnchor="middle" fontSize="11" fontWeight="700" fill={p.ntT2} pointerEvents="none">
-              NetworkTask
-            </text>
-            <text x="597" y="149" textAnchor="middle" fontSize="8" fill={p.ntT3} pointerEvents="none">
-              → /api/state (JSON)
-            </text>
-            <rect
-              x="525"
-              y="103"
-              width="145"
-              height="50"
-              rx="3"
-              fill="transparent"
-              onClick={() => toggle('network-task')}
-              style={{ cursor: 'pointer' }}
-            />
-          </g>
-        </svg>
+          <div className="flex w-36 shrink-0 flex-col justify-center gap-3 sm:w-40">
+            <NodeCard id="display-task" state={stateOf('display-task')} onClick={() => toggle('display-task')} />
+            <NodeCard id="network-task" state={stateOf('network-task')} onClick={() => toggle('network-task')} />
+          </div>
+        </div>
       </div>
 
       {/* ── Description panel ── */}
@@ -488,14 +206,14 @@ export function SensorPipelineDiagram() {
           transition: 'opacity 0.25s ease, transform 0.25s ease',
           pointerEvents: selected ? 'auto' : 'none',
         }}
-        className="mt-4 border-t border-white/[0.06] pt-4"
+        className="mt-6 border-t border-neutral-100 pt-5"
       >
         {selected && (
           <>
-            <p className="font-mono text-[9px] uppercase tracking-[0.32em] text-portfolio/60 mb-2">
+            <p className="font-mono text-sm uppercase tracking-[0.2em] text-portfolio mb-2 font-semibold">
               {DESCRIPTIONS[selected].title}
             </p>
-            <p className="text-[#a0a0a0] text-sm leading-relaxed">
+            <p className="text-neutral-900 text-sm leading-relaxed">
               {DESCRIPTIONS[selected].body}
             </p>
           </>

@@ -29,7 +29,7 @@ const FADE_UP = {
 function SectionNumber({ n }: { n: string }) {
   return (
     <div className="flex items-center gap-4 mb-6 md:mb-7">
-      <span className="font-mono text-[10px] text-portfolio/55 tracking-[0.4em] shrink-0">{n}</span>
+      <span className="font-mono text-[14px] text-portfolio/80 tracking-[0.4em] shrink-0">{n}</span>
       <div className="h-px flex-1 bg-gradient-to-r from-portfolio/20 to-transparent" />
     </div>
   );
@@ -80,12 +80,12 @@ function CaseStudyPhotoCarousel({
             <CarouselPrevious
               variant="outline"
               size="icon"
-              className="top-1/2 left-2 -translate-y-1/2 border-neutral-200 bg-white/90 shadow-sm hover:bg-white dark:border-white/15 dark:bg-[#1a1a1a]/95 dark:hover:bg-[#222]"
+              className="top-1/2 left-2 -translate-y-1/2 border-white/10 bg-neutral-700/50 text-white hover:bg-neutral-700/75 hover:text-white"
             />
             <CarouselNext
               variant="outline"
               size="icon"
-              className="top-1/2 right-2 -translate-y-1/2 border-neutral-200 bg-white/90 shadow-sm hover:bg-white dark:border-white/15 dark:bg-[#1a1a1a]/95 dark:hover:bg-[#222]"
+              className="top-1/2 right-2 -translate-y-1/2 border-white/10 bg-neutral-700/50 text-white hover:bg-neutral-700/75 hover:text-white"
             />
           </>
         )}
@@ -93,7 +93,7 @@ function CaseStudyPhotoCarousel({
 
       {showNav && (
         <div
-          className="flex flex-wrap justify-center gap-2"
+          className="no-scrollbar flex flex-nowrap justify-start gap-2 overflow-x-auto sm:justify-center"
           role="tablist"
           aria-label={`${slideLabel} thumbnails`}
         >
@@ -193,9 +193,9 @@ export function ProjectCaseStudyPage() {
         <button
           type="button"
           onClick={() => navigate(-1)}
-          className="absolute top-24 left-6 md:left-12 lg:left-20 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.28em] text-portfolio hover:text-portfolio-hover transition-colors z-10"
+          className="absolute top-24 left-6 md:left-12 lg:left-20 flex items-center gap-2 font-mono text-sm uppercase tracking-[0.28em] text-portfolio hover:text-portfolio-hover transition-colors z-10"
         >
-          <ArrowLeft className="size-3.5" aria-hidden />
+          <ArrowLeft className="size-4" aria-hidden />
           Back
         </button>
 
@@ -205,8 +205,8 @@ export function ProjectCaseStudyPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
         >
-          <p className="font-mono text-[11px] text-portfolio uppercase tracking-[0.38em] mb-4">
-            Work
+          <p className="font-mono text-[13px] text-portfolio uppercase tracking-[0.38em] mb-4">
+            Project
           </p>
           <h1
             className="font-sans font-black uppercase text-neutral-900 tracking-[-0.03em] leading-[0.9] mb-5 dark:text-white"
@@ -214,7 +214,7 @@ export function ProjectCaseStudyPage() {
           >
             {project.title}
           </h1>
-          <p className="text-neutral-500 text-base sm:text-lg max-w-xl leading-relaxed dark:text-white/65">
+          <p className="text-neutral-900 text-base sm:text-lg max-w-xl leading-relaxed dark:text-white/65">
             {project.tagline}
           </p>
         </motion.div>
@@ -225,7 +225,7 @@ export function ProjectCaseStudyPage() {
 
         {/* Stack label */}
         <motion.p
-          className="font-mono text-[11px] uppercase tracking-[0.3em] text-neutral-500 mb-16 dark:text-[#8a8a8a]"
+          className="font-mono text-[11px] uppercase tracking-[0.3em] text-neutral-800 mb-16 dark:text-[#8a8a8a]"
           {...FADE_UP}
           transition={{ ...FADE_UP.transition, delay: 0.1 }}
         >
@@ -244,26 +244,27 @@ export function ProjectCaseStudyPage() {
               { label: 'Platform', value: meta?.platform ?? project.stack },
               { label: 'Role', value: meta?.role ?? 'Creator' },
               { label: 'Timeline', value: meta?.timeline ?? '—' },
+              ...(meta?.location ? [{ label: 'Location', value: meta.location }] : []),
               { label: 'Team', value: meta?.team ?? '—' },
             ].map(({ label, value }) => (
               <div key={label} className="py-4 first:pt-0">
-                <p className="font-mono text-[9px] uppercase tracking-[0.35em] text-portfolio/50 mb-1.5">{label}</p>
-                <p className="text-sm text-neutral-700 leading-relaxed dark:text-white/88">{value}</p>
+                <p className="font-mono text-[11px] uppercase tracking-[0.35em] text-portfolio mb-1.5">{label}</p>
+                <p className="text-sm text-neutral-900 leading-relaxed dark:text-white/88">{value}</p>
               </div>
             ))}
             <div className="py-4">
-              <p className="font-mono text-[9px] uppercase tracking-[0.35em] text-portfolio/50 mb-3">Tools & Stack</p>
+              <p className="font-mono text-[11px] uppercase tracking-[0.35em] text-portfolio mb-3">Tools & Stack</p>
               {meta?.toolsGroups ? (
                 <div className="space-y-3">
                   {meta.toolsGroups.map(({ label, items }) => (
                     <div key={label}>
-                      <p className="font-mono text-[8px] uppercase tracking-wider text-neutral-400 mb-1 dark:text-white/45">{label}</p>
-                      <p className="text-sm text-neutral-600 leading-relaxed dark:text-white/85">{items}</p>
+                      <p className="font-mono text-[8px] uppercase tracking-wider text-neutral-600 mb-1 dark:text-white/45">{label}</p>
+                      <p className="text-sm text-neutral-900 leading-relaxed dark:text-white/85">{items}</p>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-neutral-600 leading-relaxed dark:text-white/85">{meta?.tools ?? project.stack}</p>
+                <p className="text-sm text-neutral-900 leading-relaxed dark:text-white/85">{meta?.tools ?? project.stack}</p>
               )}
             </div>
           </div>
@@ -358,7 +359,7 @@ export function ProjectCaseStudyPage() {
             {...FADE_UP}
             transition={{ ...FADE_UP.transition, delay: 0.25 }}
           >
-            <p className="text-xl sm:text-2xl leading-[1.7] text-neutral-500 font-light dark:text-white/88">
+            <p className="text-xl sm:text-2xl leading-[1.7] text-neutral-900 font-light dark:text-white/88">
               {cs.lead}
             </p>
           </motion.blockquote>
@@ -376,7 +377,7 @@ export function ProjectCaseStudyPage() {
               <h2 className="font-sans text-2xl sm:text-3xl font-bold text-neutral-900 mb-6 dark:text-white">
                 Problem
               </h2>
-              <p className="text-neutral-500 text-lg leading-[1.9] dark:text-[#b8b8b8]">{cs.problem}</p>
+              <p className="text-neutral-900 text-lg leading-[1.9] dark:text-[#b8b8b8]">{cs.problem}</p>
             </motion.section>
           )}
 
@@ -389,7 +390,7 @@ export function ProjectCaseStudyPage() {
               Overview
             </h2>
             <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start">
-              <p className="text-neutral-500 text-lg leading-[1.9] flex-1 dark:text-[#b8b8b8]">{project.description}</p>
+              <p className="text-neutral-900 text-lg leading-[1.9] flex-1 dark:text-[#b8b8b8]">{project.description}</p>
               {cs?.overviewMedia && (
                 <div className="w-full lg:w-[42%] shrink-0 overflow-hidden rounded-sm border border-neutral-200 bg-neutral-100 dark:border-white/[0.07] dark:bg-[#111]">
                   <img
@@ -409,7 +410,7 @@ export function ProjectCaseStudyPage() {
             >
               <SectionNumber n={nextNum()} />
               <h2 className="font-sans text-2xl sm:text-3xl font-bold text-neutral-900 mb-12 md:mb-14 dark:text-white">
-                Key points
+                {cs.highlightsTitle ?? 'Key points'}
               </h2>
               <ul className="space-y-20 md:space-y-24">
                 {cs.highlights.map((h, i) => {
@@ -419,13 +420,14 @@ export function ProjectCaseStudyPage() {
                   return (
                     <li key={h.title}>
                       <div className="flex items-center gap-3 mb-5">
-                        <span className="font-mono text-[10px] text-portfolio/40 tracking-widest shrink-0">
+                        <span className="font-mono text-[14px] text-portfolio/65 tracking-widest shrink-0">
                           {String(i + 1).padStart(2, '0')}
                         </span>
                         <h3 className="font-sans text-xl sm:text-2xl font-bold text-neutral-900 dark:text-white">{h.title}</h3>
                       </div>
                       {h.diagram === 'sensor-pipeline' && <SensorPipelineDiagram />}
                       {h.diagram === 'point-agents' && <PointAgentsDiagram />}
+                      {h.body && (
                       <div
                         className={
                           useSplitRow
@@ -439,7 +441,7 @@ export function ProjectCaseStudyPage() {
                           }
                         >
                           {h.body.split('\n\n').map((para, pi) => (
-                            <p key={pi} className="text-neutral-500 text-lg leading-[1.85] dark:text-[#b8b8b8]">
+                            <p key={pi} className="text-neutral-900 text-lg leading-[1.85] dark:text-[#b8b8b8]">
                               {para}
                             </p>
                           ))}
@@ -455,7 +457,7 @@ export function ProjectCaseStudyPage() {
                                   <span className="size-2.5 rounded-full bg-[#ff5f57]" />
                                   <span className="size-2.5 rounded-full bg-[#febc2e]" />
                                   <span className="size-2.5 rounded-full bg-[#28c840]" />
-                                  <span className="font-mono text-[10px] text-neutral-500 ml-2 tracking-wide dark:text-white/45">
+                                  <span className="font-mono text-[10px] text-neutral-600 ml-2 tracking-wide dark:text-white/45">
                                     {cb.label}
                                   </span>
                                 </div>
@@ -472,10 +474,37 @@ export function ProjectCaseStudyPage() {
                           </div>
                         )}
                       </div>
+                      )}
                     </li>
                   );
                 })}
               </ul>
+            </motion.section>
+          )}
+
+          {cs?.demoVideo && (
+            <motion.section
+              {...FADE_UP}
+              transition={{ ...FADE_UP.transition, delay: 0.46 }}
+            >
+              <SectionNumber n={nextNum()} />
+              <h2 className="font-sans text-2xl sm:text-3xl font-bold text-neutral-900 mb-6 dark:text-white">
+                Demo video
+              </h2>
+              {cs.demoVideo.text && (
+                <p className="text-neutral-900 text-lg leading-[1.9] mb-8 dark:text-[#b8b8b8]">
+                  {cs.demoVideo.text}
+                </p>
+              )}
+              <div className="w-full overflow-hidden rounded-sm border border-neutral-200 bg-neutral-100 aspect-video dark:border-white/[0.07] dark:bg-[#111]">
+                <video
+                  src={cs.demoVideo.video}
+                  poster={cs.demoVideo.poster}
+                  className="w-full h-full object-contain"
+                  controls
+                  playsInline
+                />
+              </div>
             </motion.section>
           )}
 
@@ -489,7 +518,7 @@ export function ProjectCaseStudyPage() {
                 Fabrication
               </h2>
               <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start">
-                <p className="text-neutral-500 text-lg leading-[1.9] flex-1 dark:text-[#b8b8b8]">
+                <p className="text-neutral-900 text-lg leading-[1.9] flex-1 dark:text-[#b8b8b8]">
                   {cs.fabrication.text}
                 </p>
                 <div className="w-full lg:w-[42%] shrink-0">
@@ -506,16 +535,16 @@ export function ProjectCaseStudyPage() {
             >
               <SectionNumber n={nextNum()} />
               <h2 className="font-sans text-2xl sm:text-3xl font-bold text-neutral-900 mb-6 dark:text-white">
-                Field test
+                {cs.fieldTestTitle ?? 'Field test'}
               </h2>
               <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start">
-                <p className="text-neutral-500 text-lg leading-[1.9] flex-1 dark:text-[#b8b8b8]">
+                <p className="text-neutral-900 text-lg leading-[1.9] flex-1 dark:text-[#b8b8b8]">
                   {cs.fieldTest.text}
                 </p>
                 <div className="w-full lg:w-[42%] shrink-0">
                   <CaseStudyPhotoCarousel
                     images={cs.fieldTest.images}
-                    slideLabel="Field test"
+                    slideLabel={cs.fieldTestTitle ?? 'Field test'}
                   />
                 </div>
               </div>
@@ -532,7 +561,7 @@ export function ProjectCaseStudyPage() {
               <h2 className="font-sans text-2xl font-bold text-neutral-900 mb-6 dark:text-white">
                 Reflection
               </h2>
-              <p className="text-neutral-500 text-lg leading-[1.9] dark:text-[#b8b8b8]">{cs.reflection}</p>
+              <p className="text-neutral-900 text-lg leading-[1.9] dark:text-[#b8b8b8]">{cs.reflection}</p>
             </motion.section>
           )}
         </div>

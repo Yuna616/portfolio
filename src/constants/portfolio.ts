@@ -6,6 +6,7 @@ export interface ProjectCaseStudy {
     platform?: string;
     role?: string;
     timeline?: string;
+    location?: string;
     team?: string;
     tools?: string;
     toolsGroups?: { label: string; items: string }[];
@@ -13,15 +14,22 @@ export interface ProjectCaseStudy {
   lead?: string;
   problem?: string;
   overviewMedia?: string;
+  /** Overrides the "Key points" section heading (e.g. 'Technical') */
+  highlightsTitle?: string;
   highlights?: {
     title: string;
-    body: string;
+    /** Optional when the section's own diagram (e.g. point-agents) carries the explanation instead */
+    body?: string;
     diagram?: string;
     /** Optional image beside body (e.g. product screenshot), paths under /public */
     asideMedia?: string;
     codeBlocks?: { label: string; code: string }[];
   }[];
+  /** Demo video section, shown between "Key points" and "Field test" */
+  demoVideo?: { text?: string; video: string; poster?: string };
   fabrication?: { text: string; images: string[] };
+  /** Overrides the "Field test" section heading (e.g. 'User testing') */
+  fieldTestTitle?: string;
   fieldTest?: { text: string; images: string[] };
   reflection?: string;
 }
@@ -45,6 +53,16 @@ export interface PortfolioProject {
   /** Override the hero image on the case study page independently of the gallery */
   heroImage?: string;
   caseStudy?: ProjectCaseStudy;
+  /** Display period for the home timeline, e.g. 'Mar 2026 – Jun 2026' */
+  period?: string;
+  /** ISO 'YYYY-MM' — start of period, used for timeline sorting */
+  periodStart?: string;
+  /** ISO 'YYYY-MM' — end of period (or same as periodStart), used for timeline sorting */
+  periodEnd?: string;
+  /** Program this project was built under, e.g. 'Kookmin Global PBL Program' */
+  program?: string;
+  /** Set to false to keep the project's case study page but hide it from the home timeline */
+  includeInTimeline?: boolean;
 }
 
 export const PROJECTS: PortfolioProject[] = [
@@ -52,44 +70,57 @@ export const PROJECTS: PortfolioProject[] = [
     id: '1',
     slug: 'carpybara',
     title: 'Carpybara',
-    stack: 'In-vehicle device · Speed-driven UI',
+    stack: 'In-vehicle ioT device · Firmware develop',
     category: ['typescript', 'javascript'],
     tagline: 'A small friend riding along with you in your car.',
     description:
-      'Driving can turn into a stretch of sameness: same lanes, same silence, same wait. Carpybara is a small dashboard companion whose motion tracks your speed—there to make those minutes feel less empty, not to shout for attention. I led firmware development and drove product direction as PM/PO: embedded bring-up, reliable sensing pipelines, and the scope and milestone decisions that kept the in-cabin experience on track.',
+      'Driving can turn into a stretch of sameness: same lanes, same silence, same wait. Carpybara is a small dashboard companion whose motion tracks your speed—there to make those minutes feel less empty, not to shout for attention.',
     url: 'https://carpybara.com/',
     devLogUrl:
       'https://lovebotw049.tistory.com/category/%EA%B0%9C%EC%9D%B8%20%EA%B0%9C%EB%B0%9C/%EC%9E%90%EB%8F%99%EC%B0%A8%20%EC%86%8D%EB%8F%84%20%EA%B8%B0%EB%B0%98%20IoT%20%EC%9E%A5%EC%8B%9D%20%EB%A7%8C%EB%93%A4%EA%B8%B0',
-    images: ['/carpybara.png', '/Carpybara_video.mov', '/carpybara_2.png', '/carpybara_3.jpg','/carpybara_5.jpg','/run (1).gif'],
+    images: ['/carpybara.png', '/Carpybara_video.mov', '/carpybara_2.png', '/carpybara_3.jpg','/carpybara_5.jpg','/run (1).gif','/carpybara_6.jpg'],
     heroImage: '/run (1).gif',
+    period: 'Mar 2026 – Jun 2026',
+    periodStart: '2026-03',
+    periodEnd: '2026-06',
+    program: 'Kookmin Global PBL Program',
     caseStudy: {
       meta: {
         platform: 'In-vehicle embedded device · Companion UI',
         role: 'Firmware development · Embedded Systems Engineer',
         timeline: 'Ongoing',
+        location: 'Irvine, CA',
         team: '4-person core team',
         toolsGroups: [
-          { label: 'Firmware & Embedded', items: 'ESP32 · FreeRTOS · PlatformIO · C/C++ · Arduino' },
+          { label: 'Firmware & Embedded', items: 'ESP32-S3 (Waveshare ESP32-S3-Zero) · FreeRTOS · PlatformIO · C/C++ · Arduino' },
           { label: 'Sensors', items: 'GPS — HGLRC Mini M100 · IMU — MPU-6050 (GY-521 Module)' },
           { label: 'Tools', items: 'Git · Linux · VS Code · PlatformIO · OnShape 3D Printer' },
         ],
       },
-      lead:
-        'The road is often boring; the cabin does not have to be. Carpybara sits where you already look—a quiet co-pilot whose mood moves with your speed—so the drive feels a little less like clock-watching and a little more like good company.',
       problem:
-        'Drivers need information at a glance without cognitive overload. Heavy dashboards compete for attention; a companion layer must stay subtle, readable in sunlight, and responsive to real vehicle state.',
+        'Driving can turn into a stretch of sameness—same lanes, same silence, same wait. Carpybara is a small device mounted on the dashboard that tracks the car\'s speed and turns it into motion, so those minutes feel a little less empty.',
       overviewMedia: '/run (1).gif',
       highlights: [
         {
-          title: 'Why FreeRTOS',
-          body: 'FreeRTOS replaced the original single-threaded Arduino loop() architecture, where networking, sensor reads, and rendering blocked each other and caused unstable frame rates. The system was redesigned into three independent tasks across both ESP32-S3 cores: NetworkTask for HTTP/DNS handling, SensorTask for GPS and IMU processing, and DisplayTask for 60 FPS rendering. A mutex-protected shared state ensures safe communication between tasks. By isolating networking from rendering, display updates remain stable even during file transfers or sensor activity, resulting in consistent 60 FPS performance and scalable sensor integration.',
+          title: 'System diagram',
+          diagram: 'sensor-pipeline',
+          body: 'GPS and IMU readings feed into a shared state on the ESP32-S3, which the display and the companion app then read from independently. GPS gives an accurate but slow (1 Hz) speed reading, the IMU fills the gaps in between so the on-screen motion stays smooth.',
+        },
+        {
+          title: 'Hardware spec',
+          body: 'The core is a Waveshare ESP32-S3-Zero, paired with an HGLRC Mini M100 GPS module for speed and an MPU-6050 IMU for motion sensing. A small display renders the pet animation, and everything sits inside a compact 3D-printed enclosure sized to mount on a dashboard.',
+          asideMedia: '/carpybara_11.png',
+        },
+        {
+          title: 'Firmware design',
+          body: 'The firmware moved from a single-threaded Arduino loop() to a FreeRTOS design split across three tasks on both ESP32-S3 cores—one for sensors, one for rendering, one for networking—so a slow network call or sensor read never stalls the on-screen animation.',
           codeBlocks: [
             {
               label: 'tasks.cpp — Three tasks, two cores',
               code: `static void sensorTask(void*) {
   for (;;) {
     PetSensor::write(
-      gps.speed.kmph(),
+      gps.speed.mph(),
       detectBrake(),
       detectBump()
     );
@@ -101,7 +132,7 @@ static void displayTask(void*) {
   for (;;) {
     SensorState s;
     PetSensor::petSensorRead(&s); // mutex snapshot
-    petAnimSetSpeed(s.speed_kmh);
+    petAnimSetSpeed(s.speed_mph_smooth);
     petAnimDraw();
     vTaskDelay(pdMS_TO_TICKS(16)); // ~60 fps
   }
@@ -116,52 +147,19 @@ static void networkTask(void*) {
             },
           ],
         },
-        {
-          title: 'Sensor pipeline',
-          diagram: 'sensor-pipeline',
-          body: 'Two sensors stream data into a mutex-guarded SensorState struct every 50 ms via SensorTask on Core 0. GPS frames arrive over UART2 — TinyGPSPlus decodes each NMEA sentence and commits speed, position, and satellite count when isUpdated() fires. The MPU-6050 delivers raw g-values over I2C: brake latches when ax < −0.35 g persists for 80 ms; bump fires immediately at |az| > 1.8 g — both events hold for 2 s so transient hits reliably reach downstream consumers.\n\nTwo independent tasks snapshot the struct safely: DisplayTask (60 Hz, Core 1) maps speed to animation states (SLEEP → WALK → RUN → TURBO) and triggers a skid-mark overlay on brake; NetworkTask (100 Hz, Core 0) serialises the same struct as JSON for the companion app\'s 1 Hz /api/state poll. In GPS-denied environments, debug speed can be injected via Serial Monitor or HTTP POST — real sensor data resumes automatically on the next NMEA sentence.',
-          codeBlocks: [
-            {
-              label: 'pet_sensor.cpp — SensorTask: GPS + IMU → SensorState',
-              code: `// SensorTask — 20 Hz, Core 0
-void sensorTask(void*) {
-  for (;;) {
-    // GPS: NMEA stream → TinyGPSPlus
-    while (Serial2.available())
-      gps.encode(Serial2.read());
-
-    if (gps.speed.isUpdated()) {
-      xSemaphoreTake(mutex, portMAX_DELAY);
-      state.speed_kmh  = gps.speed.kmph();
-      state.lat        = gps.location.lat();
-      state.lon        = gps.location.lng();
-      state.satellites = gps.satellites.value();
-      xSemaphoreGive(mutex);
-    }
-
-    // IMU: MPU-6050 → brake / bump detection
-    mpu.getEvent(&a, &g, &t);
-    float ax = a.acceleration.x / 9.81f;
-    float az = a.acceleration.z / 9.81f;
-    // ax < -0.35 g for 80 ms → brake_active (2 s latch)
-    checkBrake(ax);
-    // |az| > 1.8 g instant → bump_active (2 s latch)
-    checkBump(az);
-
-    vTaskDelay(pdMS_TO_TICKS(50)); // 20 Hz
-  }
-}`,
-            },
-          ],
-        },
       ],
+      demoVideo: {
+        text: 'Carpybara moving through its animation states as speed changes, mounted on a dashboard.',
+        video: '/Carpybara_video.mov',
+        poster: '/carpybara.png',
+      },
       fabrication: {
-        text: 'To move Carpybara from breadboard to a device that could actually sit inside a car, we visited UCI FabWorks for a hands-on fabrication session. The enclosure was 3D-printed to house the ESP32-S3, TFT display, and sensor modules within a compact, mountable form factor. Sensor leads were hand-soldered—GPS module over UART2, MPU-6050 over I2C—locking in the physical wiring the firmware already assumed. Working through real tolerances, heat, and cable routing surfaced integration details that only appear when you hold the hardware.',
+        text: 'To move Carpybara from breadboard to a device that could actually sit inside a car, we visited UCI FabWorks for a hands-on fabrication session—3D-printing an enclosure for the ESP32-S3, display, and sensors, and hand-soldering the GPS and IMU leads into place.',
         images: ['/carpybara_3.jpg','/carpybara_7.png','/carpybara_6.png','/carpybara_4.jpg'],
       },
       fieldTest: {
-        text: 'To validate the experience in a real cabin, I visited the Rivian showroom at Irvine Spectrum Center and ran the device against an actual vehicle. Testing on a production EV confirmed that sensor readings and UI responses held up outside the lab—and surfaced edge cases in ambient light and mounting angle that only a real interior could reveal.',
-        images: ['/carpybara_2.png', '/carpybara_5.jpg'],
+        text: 'To validate the experience in a real cabin, I visited the Rivian showroom at Irvine Spectrum Center and tested the device in an actual vehicle. I also brought Carpybara to a range of local people around Irvine and had them try it hands-on, to see how it landed outside the lab.',
+        images: ['/carpybara_2.png', '/carpybara_5.jpg', '/carpybara_8.png', '/carpybara_9.png', '/carpybara_10.png'],
       },
       reflection:
         'Building a hardware device and getting it to a point where it can actually be used in the real world were both harder than they look on paper. Tuning the circuit and firmware is only the start—mounting, environment, and durability are the kinds of details you only really learn once you take the thing out of the lab. Carpybara was a sharp reminder of that gap.',
@@ -182,6 +180,8 @@ void sensorTask(void*) {
       '/PCB_1.png','/pcb_demo_1.mp4'
     ],
     heroImage: '/PCB_2.png',
+    /** Kept as a case study (still reachable via its own URL) but left off the home timeline. */
+    includeInTimeline: false,
     caseStudy: {
       meta: {
         platform: 'Chrome MV3 extension · EasyEDA',
@@ -266,51 +266,49 @@ async function onMessage(msg) {
     category: ['react', 'typescript'],
     tagline: 'An AI agent that helps you level up your presentation skills.',
     description:
-      'Most rehearsal happens alone—and alone, it is easy to rehearse confidence instead of clarity. Point is a presentation coaching system I built around real practice: you bring material, walk through a short quiz, then deliver while speech and video feed a coordinated set of AI passes. One orchestration layer keeps session state and recovery honest; specialized agents handle brief analysis, live speech cues, MediaPipe-based gaze and posture off the main thread, a pointed five-turn audience Q&A, and a final scorecard in everyday language. I shipped it with React, TypeScript, Zustand, Supabase, and Vercel, and leaned on GPT-4o family models, the Web Speech API, and MediaPipe where perception actually matters—so the hard UX problem stays latency, overload, and continuity, not wiring trivia.',
+      'Practicing a presentation alone is hard. Point is a presentation coaching system I built around real rehearsal: bring your material, work through a short quiz, then deliver your talk — while your voice and video are analyzed by an AI pipeline in real time.',
     url: 'https://pointpresent.com',
     devLogUrl:
       'https://lovebotw049.tistory.com/category/%EA%B0%9C%EC%9D%B8%20%EA%B0%9C%EB%B0%9C/%EB%B0%9C%ED%91%9C%20%EB%8F%84%EC%9A%B0%EB%AF%B8%20ai%20agent%20%EB%A7%8C%EB%93%A4%EA%B8%B0',
     images: ['/Point.png', '/Point_2.png', '/Point_4.png', '/Point_3.png'],
+    period: 'Mar 2026 – Jun 2026',
+    periodStart: '2026-03',
+    periodEnd: '2026-06',
+    program: 'Kookmin Global PBL Program',
     caseStudy: {
       meta: {
         platform: 'Web app · Vercel · Supabase',
         role: 'Creator · Full-stack · AI agents & multimodal UX',
         timeline: 'Ongoing',
+        location: 'Irvine, CA',
         team: '2-person core team',
         toolsGroups: [
           { label: 'Frontend', items: 'React 18 · TypeScript · Zustand · Tailwind CSS · Vite' },
-          { label: 'AI & sensing', items: 'OpenAI GPT-4o / GPT-4o-mini · Web Speech API · MediaPipe (FaceMesh, Pose, Hands) · Web Workers for vision path' },
+          { label: 'AI & sensing', items: 'OpenAI GPT-4o / GPT-4o-mini · Web Speech API · MediaPipe (FaceMesh, Pose, Hands)' },
           { label: 'Backend & data', items: 'Supabase — Auth · PostgreSQL · Storage' },
-          { label: 'Infra', items: 'Vercel deployment · Environment-driven config' },
+          { label: 'Infra', items: 'Vercel deployment' },
         ],
       },
-      lead:
-        'Practicing alone is honest work—but without a mirror you mostly rehearse confidence, not clarity. Point is built so feedback feels objective: measurable speech, visible posture, and an audience that pushes back before the real room does.',
-      problem:
-        'Rehearsing solo rarely produces objective feedback: you cannot hear every filler, see your own gaze drift, or stress-test arguments the way a live audience does. Real-time correction of speech and body language usually takes a human coach. Spotting weak points from slides alone is slow—and decks optimize for authoring, not for how you actually sound and move on stage.',
       overviewMedia: '/Point.png',
+      highlightsTitle: 'Technical',
       highlights: [
         {
           title: 'Six agents, one session graph',
           diagram: 'point-agents',
-          body:
-            'Agent 0 orchestrates a state machine and session recovery. Agent 1 ingests PDF/TXT to extract summaries and weak-area cues for a quiz. Agent 2 tracks speech in real time—WPM, filler words, and semantic off-topic signals. Agent 3 runs MediaPipe-based gaze, posture, and gesture analysis off the main thread. Agent 4 plays a five-turn AI audience for a stress-style Q&A grounded in your gaps. Agent 5 aggregates logs into composite scores and natural-language feedback. Shared session context keeps the pipeline coherent instead of six disconnected chat bots.',
-        },
-        {
-          title: 'Latency, overload, and continuity',
-          asideMedia: '/Point_2.png',
-          body:
-            'The guiding constraints are simple: feedback has to feel immediate where rules allow (near–instant cues), the interface cannot drown you—only the highest-priority nudge surfaces at a time—and every agent has to share the same rehearsal story instead of trading isolated snippets.',
-        },
-        {
-          title: 'End-to-end rehearsal arc',
-          asideMedia: '/Point_4.png',
-          body:
-            'The journey is deliberately linear: upload and quiz first, then a live run with coaching in the loop, then a stressful Q&A pass, then a report you can actually use. It turns “I finished my slides” into “I survived something much closer to stage conditions”—with numbers and narrative at the end instead of a vague gut check.',
         },
       ],
+      demoVideo: {
+        video: '/point_demo.mp4',
+        poster: '/Point.png',
+      },
+      fieldTestTitle: 'User testing',
+      fieldTest: {
+        text:
+          'I visited the UCI ANTrepreneur Center and tested Point with someone who works there as an actual presentation coach, walking through the app together and getting hands-on feedback. I also brought it to a campus poster session and gathered feedback from a range of students trying it firsthand.',
+        images: ['/Point_6.jpg', '/Point_5.jpg'],
+      },
       reflection:
-        'Implementing a reliable multi-agent pipeline was one of the hardest parts of this project—coordination, timing, and shared context add up fast. I plan to keep iterating so presenting feels a little easier and less intimidating for people who have to stand up and speak for real.',
+        'Building a stable multi-agent pipeline was one of the hardest parts of this project — coordination, timing, and shared context compound quickly. I plan to keep improving it so that people who actually have to present can do so more easily and with less pressure.',
     },
   },
 ];
@@ -319,69 +317,411 @@ export function getProjectBySlug(slug: string): PortfolioProject | undefined {
   return PROJECTS.find((p) => p.slug === slug);
 }
 
+/** Optional long-form case study content for the /experience/:slug page — same visual language as a project's ProjectCaseStudy */
+export interface ExperienceCaseStudy {
+  /** Full-width hero image or video (.mp4/.mov/.webm/.ogg) shown at the top of the /experience/:slug page, paths under /public */
+  heroMedia?: string;
+  meta?: {
+    /** Array renders as a bulleted list instead of a single "·"-joined line */
+    role?: string | string[];
+    timeline?: string;
+    team?: string;
+    toolsGroups?: { label: string; items: string }[];
+  };
+  lead?: string;
+  problem?: string;
+  /** Overrides the "Key points" section heading (e.g. 'Technical') */
+  highlightsTitle?: string;
+  highlights?: {
+    title: string;
+    body?: string;
+    /** Rendered as a bulleted list instead of prose paragraphs when set */
+    items?: string[];
+    diagram?: string;
+    codeBlocks?: { label: string; code: string }[];
+    /** Optional image beside body (e.g. hardware photo, reference diagram), paths under /public — ignored when codeBlocks is set */
+    asideMedia?: string;
+  }[];
+  /** Demo recordings, shown between "Key points" and the next section */
+  demoVideos?: { text?: string; video: string }[];
+  /** A second technical section, title overridable (e.g. 'Pipeline & control server') */
+  secondaryTitle?: string;
+  secondary?: { text: string; items?: string[] };
+  /** Testing/evaluation methodology, title overridable (e.g. 'Verification') */
+  verificationTitle?: string;
+  verification?: { text: string; items?: string[] };
+  reflection?: string;
+}
+
 export interface ExperienceItem {
+  /** URL segment for /experience/:slug */
+  slug: string;
   role: string;
   company: string;
   period: string;
+  /** ISO 'YYYY-MM' — start of period, used for timeline sorting */
+  periodStart: string;
+  /** ISO 'YYYY-MM' — end of period, used for timeline sorting */
+  periodEnd: string;
   location: string;
   url?: string;
   description?: string;
+  /** Short lead paragraph shown at the top of the /experience/:slug page */
+  summary?: string;
   bullets?: string[];
   team?: boolean;
   tags: string[];
+  /** If set, the timeline card's "Detail" button opens this URL (new tab) instead of /experience/:slug */
+  detailUrl?: string;
+  /** Overrides summary+bullets with just this one line in the home timeline card preview */
+  previewText?: string;
+  /** Photo strip shown in the home timeline card preview, paths under /public */
+  images?: string[];
+  /** Square icon shown on the home timeline card (falls back to initials), path under /public */
+  icon?: string;
+  /** Optional rich case study — when set, /experience/:slug renders the full project-style layout instead of the plain summary/bullets view */
+  caseStudy?: ExperienceCaseStudy;
 }
 
 export const EXPERIENCE: ExperienceItem[] = [
-  
+
   {
-    role: 'Custom Language Builder — PBL Hackathon',
-    company: 'Hackathon project',
-    period: 'Mar 2026',
-    location: 'Web · Interpreter',
-    url: 'https://github.com/Yuna616/CustomLanguageLearing',
+    slug: 'on-device-ai-cheating-detection-system',
+    role: 'On-Device AI Cheating Detection System',
+    company: 'Embedded Systems Engineer',
+    period: 'Jun 2026 – Present',
+    periodStart: '2026-06',
+    periodEnd: '2026-08',
+    location: 'Irvine, CA',
+    team: true,
+    summary:
+      'A fully on-device edge AI system that detects exam cheating from a single webcam feed. Vision inference and LLM judgment run on separate cores of a dual Hexagon NPU, so the board operates in real time with no cloud dependency.',
     bullets: [
-      'Built a web app and CLI interpreter for designing and executing custom programming languages, developed during a PBL hackathon.',
-      'Implemented a Vite + React frontend with a TypeScript Fastify backend API for writing language specs, running code, and applying languages to educational or gaming contexts.',
+      'Architected a dual-NPU pipeline on a Radxa Airbox Q900 (Qualcomm QCS9075) — vision inference pinned to Hexagon NPU core 0, Qwen3-4B (w4a16 quantized) judgment pinned to core 1 via QAIRT Genie — with CPU fallback blocked so the whole pipeline stays NPU-bound and LLM judgment never blocks real-time vision inference.',
+      'Benchmarked 4 gaze-estimation models by cross-dataset MAE on MPIIFaceGaze (45k samples, 15 subjects); the top scorer (PureGaze, 7.10°) regressed to 6 false positives on real evaluation clips. Traced it to camera-angle conditions the benchmark didn\'t capture and redesigned calibration — MAD-gated baseline collection, an absolute-angle gate, and EMA + hysteresis smoothing — cutting false positives 6 → 2 while holding recall at 1.0 (10/10).',
+      'Deployed 4 quantized vision models (face detection, 3D landmark mapping, gaze estimation, person detection) fully on NPU via ONNX Runtime\'s QNN execution provider, and ported ByteTrack from Python to dependency-free Rust for multi-person tracking.',
+      'Built the GStreamer camera pipeline (V4L2 capture, hardware H.264 decode via the board\'s VPU with software fallback, auto device detection) and a Rust/Axum control server serving live frames and detection records, then validated end-to-end with a confusion-matrix accuracy harness across 8 cheating clips and 2 normal cases.',
     ],
-    tags: ['TypeScript', 'React', 'Python', 'Fastify', 'Interpreter'],
+    tags: ['Qualcomm QCS9075', 'Dual-NPU', 'Rust', 'ONNX Runtime QNN EP', 'Gaze Calibration'],
+    previewText:
+      'A dual-NPU edge AI system on Radxa Airbox (Qualcomm QCS9075), isolating vision inference (NPU0) and LLM judgment (NPU1) for cloud-independent, real-time execution.',
+    images: ['/ondevice_1.webp', '/ondevice_demo1.mp4'],
+    icon: '/ondevice_3.jpg',
+    caseStudy: {
+      heroMedia: '/ondevice_demo1.mp4',
+      meta: {
+        timeline: 'Jun 2026 – Present',
+        team: '4-person team project',
+        toolsGroups: [
+          { label: 'Hardware', items: 'Radxa Airbox Q900 — Qualcomm QCS9075, 2× Hexagon NPU cores' },
+          { label: 'Runtime & models', items: 'Rust (Axum, ort/ONNX Runtime QNN EP, GStreamer) · Qualcomm QAIRT · Python (eval harness)' },
+          { label: 'Quantization', items: 'w8a16 / w8a8 / FP16 / w4a16' },
+          { label: 'Platform', items: 'Linux aarch64' },
+        ],
+      },
+      problem:
+        'Exam proctoring needs to catch cheating in real time. Sending video to a server for every check is not practical though: the bandwidth cost adds up fast, it raises privacy concerns, and the round-trip latency is too slow for live monitoring anyway. This project tackles that by moving detection on-device, so cheating can be caught in real time even fully offline.',
+      highlightsTitle: 'Technical',
+      highlights: [
+        {
+          title: 'System architecture',
+          diagram: 'on-device-pipeline',
+          items: [
+            'The core design decision was splitting the work across the board\'s two Hexagon NPU cores. Vision inference runs on core 0 and LLM judgment runs on core 1, completely independently, so no matter how long a judgment call takes, the vision loop keeps its frame rate steady, and the same holds true the other way around.',
+            'Models reach the NPU through Qualcomm\'s QAIRT stack. ONNX Runtime\'s QNN execution provider hands each model off to the Qualcomm AI Engine Direct API, which schedules it directly onto the Hexagon NPU\'s HTP, HMX, and HVX cores instead of falling back to the GPU or CPU.',
+            'Video decoding and encoding are handled separately through the VPU. If the NPU had to take on that work too, it would eat into the compute budget needed for vision inference and LLM judgment, so offloading it to the VPU, a dedicated hardware unit for decode/encode, keeps the NPU free for the actual inference work. It\'s also considerably faster than software decoding.',
+          ],
+          asideMedia: '/ondevice_2.webp',
+        },
+        {
+          title: 'Hardware',
+          body:
+            'A Radxa Airbox Q900, a fanless box cooled by a heatsink and built around the Qualcomm QCS9075, is the entire runtime. It has dual antennas for wireless, USB, Ethernet, HDMI, and SIM ports on the I/O panel, and no moving parts, which matters for something meant to sit on a desk running continuously through an exam.',
+          asideMedia: '/ondevice_1.webp',
+        },
+      ],
+      demoVideos: [
+        {
+          text: 'A user taking a mock exam while the vision pipeline tracks their gaze and movement in real time; those detections feed the LLM, which judges whether the behavior counts as cheating.',
+          video: '/ondevice_demo1.mp4',
+        },
+        {
+          text: 'The web monitoring UI: a proctor can browse the full exam history and clip straight to just the moments flagged as cheating.',
+          video: '/ondevice_demo2.mp4',
+        },
+      ],
+      reflection:
+        'Working on this project deepened my understanding of embedded systems considerably. Scheduling work directly across NPU cores and working with the QNN stack gave me a hands-on feel for what it actually means to design under tight resource constraints. Problems that would normally just get offloaded to the cloud had to be solved on-device instead, which pushed me to learn far more than I would have otherwise. Going through this process also convinced me that the on-device AI market is only going to grow from here. I see this project as a small example of that broader shift.',
+    },
   },
   {
-    role: 'Neural Network Matrix Optimization',
-    company: 'Academic project',
-    period: 'Oct 2025 – Dec 2025',
-    location: 'C++ · HPC',
-    url: 'https://github.com/Yuna616/Neural-Network-Matrix-Optimization-#',
+    slug: 'teaching-assistant-computer-networks',
+    role: 'Teaching Assistant',
+    company: 'Paid TA for a Computer Networks Course',
+    icon: '/kmu.webp',
+    period: 'Mar 2025 – Jul 2025',
+    periodStart: '2025-03',
+    periodEnd: '2025-07',
+    location: 'Seoul, Korea',
+    summary:
+      'Paid TA for a Computer Networks course, mentoring 30+ undergraduates through weekly office hours.',
     bullets: [
-      'Applied cache-oblivious algorithms, loop unrolling, and AVX2 to matrix multiplication, achieving 4096×4096 ops in under 3 seconds at over 30,000 MFLOPS.',
-      'Implemented a Fully Connected layer from scratch in C++ with direct matrix ops using pretrained VGG19 weights; optimized memory access patterns for low-level performance tuning.',
+      'Mentored 30+ undergraduates in a Computer Networks course by simplifying complex technical concepts (TCP/IP, routing, network security) during weekly office hours to support academic performance.',
+      'Completed an in-depth networking study alongside the professor, going beyond the course curriculum.',
     ],
-    tags: ['C++', 'AVX2', 'Matrix Optimization', 'VGG19', 'Performance'],
+    tags: ['Computer Networks', 'TCP/IP', 'Routing', 'Network Security', 'Mentoring'],
+    detailUrl: 'https://pepper-alpaca-8cd.notion.site/25-6bc43417d64a82de8205818beab9bfab',
+  },
+];
+
+export function getExperienceBySlug(slug: string): ExperienceItem | undefined {
+  return EXPERIENCE.find((e) => e.slug === slug);
+}
+
+export interface EducationActivity {
+  title: string;
+  bullets: string[];
+  /** Display text, e.g. 'Mar 2026 – Aug 2026' */
+  period?: string;
+}
+
+export interface EducationItem {
+  /** Unique id — kept even though there's no detail page, for stable React keys etc. */
+  slug: string;
+  school: string;
+  degree: string;
+  location: string;
+  /** Display text, e.g. 'Mar 2023 – Aug 2027 (Expected)' */
+  period: string;
+  /** ISO 'YYYY-MM' — used for timeline sorting (when this "first appeared") */
+  periodStart: string;
+  /** ISO 'YYYY-MM' — used for timeline sorting */
+  periodEnd: string;
+  gpa?: string;
+  /** Square logo shown on the timeline card, path under /public */
+  icon?: string;
+  /** Full course list — the short `previewCourses` list is what actually renders */
+  courses?: string[];
+  /** Short highlight list shown in the home timeline card preview — falls back to `courses` */
+  previewCourses?: string[];
+  /** Clubs & societies, each with its own bullet points */
+  activities?: EducationActivity[];
+  /** Honors & awards, one line each */
+  honors?: string[];
+}
+
+export const EDUCATION: EducationItem[] = [
+  {
+    slug: 'kookmin-university',
+    school: 'Kookmin University',
+    degree: 'Bachelor of Software Engineering',
+    location: 'Seoul, Korea',
+    period: 'Mar 2023 – Aug 2027 (Expected)',
+    periodStart: '2023-03',
+    periodEnd: '2027-08',
+    gpa: '4.19 / 4.5',
+    icon: '/kmu.webp',
+    courses: [
+      'Operating Systems',
+      'Computer Architecture',
+      'System Software',
+      'Cloud Computing',
+      'Database',
+      'C++ Programming',
+      'Data Science',
+      'Computer Network',
+      'File Processing',
+      'Algorithms',
+      'Object-Oriented Analysis & Design',
+      'Digital Logic Design',
+    ],
+    previewCourses: [
+      'Operating Systems',
+      'Computer Architecture',
+      'System Software',
+      'Digital Logic Design',
+      'C++ Programming',
+    ],
+    activities: [
+      {
+        title: 'KMU Global PBL',
+        period: 'Mar 2026 – Aug 2026',
+        bullets: [
+          'Selected for a competitive global PBL program in Irvine focused on real-world product development.',
+          'Developed embedded software and full-stack services, delivering end-to-end systems.',
+          'Built AI-powered applications using LLM-driven development (Claude, Cursor) in a startup-style environment.',
+        ],
+      },
+    ],
+    honors: [
+      'Software Specialization Merit Scholarship — Awarded for outstanding academic performance (Spring & Fall 2024)',
+    ],
+  },
+];
+
+export function getEducationBySlug(slug: string): EducationItem | undefined {
+  return EDUCATION.find((e) => e.slug === slug);
+}
+
+export type CourseCategory = 'embedded' | 'ai' | 'algorithms' | 'networks' | 'web' | 'math';
+
+export interface CourseItem {
+  id: string;
+  name: string;
+  category: CourseCategory;
+  semester: string;
+  grade?: string;
+  description: string;
+  topics: string[];
+  tools?: string[];
+}
+
+export const GPA = { value: 4.02, scale: 4.5 };
+
+export const COURSES: CourseItem[] = [
+  {
+    id: 'os',
+    name: 'Operating Systems',
+    category: 'networks',
+    semester: '2024-1',
+    description: 'Core concepts covering process management, memory, and file systems with hands-on Linux implementation.',
+    topics: [
+      'Process and thread lifecycle management',
+      'CPU scheduling algorithms (FCFS, SJF, Round Robin, priority)',
+      'Synchronization: mutex, semaphore, monitor',
+      'Deadlock detection and prevention strategies',
+      'Virtual memory and page replacement algorithms',
+      'File system internals and I/O management',
+    ],
+    tools: ['C', 'Linux', 'POSIX'],
   },
   {
-    role: 'ESP32CAM Human Classifier',
-    company: 'Academic project',
-    period: 'Mar 2025 – Jun 2025',
-    location: 'Embedded · Deep learning',
-    url: 'https://github.com/Yuna616/ESP32CAM_HumanClassifier',
-    bullets: [
-      'Built an ESP32CAM-based real-time human detection and emotion classification system using C/C++ firmware and a Python deep learning backend.',
-      'Implemented a camera web server on ESP32CAM for live image capture and streaming, integrated with a FastAPI server for inference.',
-      'Designed a full server-client pipeline: ESP32CAM captures and transmits images, backend classifies using a trained neural network model.',
+    id: 'ca',
+    name: 'Computer Architecture',
+    category: 'embedded',
+    semester: '2023-2',
+    description: 'Digital computer organization from logic gates to CPU pipeline design and memory hierarchy.',
+    topics: [
+      'Instruction Set Architecture (ISA) design',
+      'MIPS assembly language programming',
+      '5-stage CPU pipeline design',
+      'Hazard detection and data forwarding',
+      'Cache memory design and replacement policies',
+      'Memory hierarchy and performance analysis',
     ],
-    tags: ['ESP32CAM', 'C/C++', 'Python', 'FastAPI', 'Deep Learning'],
+    tools: ['MIPS Assembly', 'Logisim', 'C'],
   },
   {
-    role: 'Cohort Class Helper — Computer Network',
-    company: 'Teaching Assistant',
-    period: 'Mar 2025 – Jun 2025',
-    location: 'Computer networks · Mentoring · Faculty study',
-    bullets: [
-      'Mentored students in computer networking through a peer learning program.',
-      'Guided understanding of complex networking concepts and supported collaborative learning.',
-      'Completed in-depth computer-networking study alongside a professor.',
-      'Conducted research on Grover’s algorithm in quantum computing and symmetric-key cryptography.',
+    id: 'lcd',
+    name: 'Logic Circuit Design',
+    category: 'embedded',
+    semester: '2023-1',
+    description: 'Combinational and sequential logic circuit design using Boolean algebra and hardware description language.',
+    topics: [
+      'Boolean algebra and Karnaugh maps',
+      'Combinational circuits: MUX, decoder, adder, comparator',
+      'Sequential circuits: flip-flops, registers, counters',
+      'Finite state machines (Mealy / Moore)',
+      'Verilog HDL design and simulation',
+      'FPGA implementation and verification',
     ],
-    tags: ['Computer Networks', 'Mentoring', 'Teaching', 'Quantum Computing', 'Cryptography'],
+    tools: ['Verilog', 'Xilinx Vivado', 'FPGA'],
+  },
+  {
+    id: 'mpa',
+    name: 'Microprocessor Applications',
+    category: 'embedded',
+    semester: '2024-2',
+    description: 'ARM Cortex-M based microprocessor programming, from assembly language to peripheral interfacing.',
+    topics: [
+      'ARM Cortex-M architecture and register set',
+      'Assembly language programming',
+      'Memory map and addressing modes',
+      'Timer/counter, PWM, and ADC interfacing',
+      'UART / SPI / I2C peripheral communication',
+      'Interrupt handling and vector table configuration',
+    ],
+    tools: ['STM32', 'Keil MDK', 'ARM Assembly', 'C'],
+  },
+  {
+    id: 'ooad',
+    name: 'Object-Oriented Analysis & Design',
+    category: 'web',
+    semester: '2024-1',
+    description: 'Systematic software design using OOP principles, UML modeling, and industry-standard design patterns.',
+    topics: [
+      'OOP principles: encapsulation, inheritance, polymorphism, abstraction',
+      'UML diagrams: class, sequence, activity, use case',
+      'Design patterns: Creational, Structural, Behavioral (GoF)',
+      'SOLID principles and clean architecture',
+      'Requirement analysis and system modeling',
+      'Agile and iterative development workflow',
+    ],
+    tools: ['Java', 'UML', 'Figma', 'Git'],
+  },
+  {
+    id: 'cn',
+    name: 'Computer Networks',
+    category: 'networks',
+    semester: '2025-1',
+    description: 'TCP/IP protocol stack, routing algorithms, network security, and an introduction to quantum cryptography.',
+    topics: [
+      'OSI 7-layer model',
+      'TCP / IP and UDP protocol internals',
+      'HTTP / HTTPS, DNS, DHCP, SMTP',
+      'Routing algorithms: OSPF, BGP, distance-vector',
+      'Symmetric-key encryption and PKI infrastructure',
+      "Grover's algorithm and post-quantum cryptography",
+    ],
+    tools: ['Wireshark', 'Python', 'Socket Programming'],
+  },
+  {
+    id: 'cg',
+    name: 'Computer Graphics',
+    category: 'algorithms',
+    semester: '2025-1',
+    description: '2D/3D rendering pipeline, geometric transformations, shading models, and real-time rendering techniques.',
+    topics: [
+      '2D / 3D coordinate transformations and projection',
+      'Rendering pipeline and rasterization',
+      'Lighting models: Phong, Blinn-Phong',
+      'Texture mapping and UV coordinates',
+      'Hidden surface removal (z-buffer)',
+      'OpenGL shader programming (GLSL)',
+    ],
+    tools: ['OpenGL', 'GLSL', 'C++', 'WebGL'],
+  },
+  {
+    id: 'la',
+    name: 'Linear Algebra',
+    category: 'math',
+    semester: '2023-1',
+    description: 'Vector spaces, matrix operations, and eigenvalue decomposition — the mathematical backbone of AI and graphics.',
+    topics: [
+      'Vectors, vector spaces, and subspaces',
+      'Matrix operations, inverse, and transpose',
+      'Gaussian elimination and LU decomposition',
+      'Eigenvalues and eigenvectors',
+      'Singular value decomposition (SVD)',
+      'Principal component analysis (PCA)',
+    ],
+    tools: ['Python', 'NumPy', 'MATLAB'],
+  },
+  {
+    id: 'cpp',
+    name: 'C++ Programming',
+    category: 'algorithms',
+    semester: '2022-2',
+    description: 'Advanced C++ covering OOP, templates, STL, memory management, and modern C++ features.',
+    topics: [
+      'Classes, inheritance, polymorphism, and virtual functions',
+      'Templates and generic programming',
+      'STL containers and algorithms (vector, map, set, sort)',
+      'Dynamic memory management and RAII',
+      'Smart pointers (unique_ptr, shared_ptr)',
+      'Modern C++ (C++11/14/17): move semantics, lambdas, auto',
+    ],
+    tools: ['C++', 'GCC', 'CMake', 'Valgrind'],
   },
 ];
 
