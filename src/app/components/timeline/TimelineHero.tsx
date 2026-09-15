@@ -14,8 +14,8 @@ export function TimelineHero() {
             botw461@gmail.com
           </a>{' '}
           <span className="text-neutral-300">|</span>{' '}
-          <a href="tel:+19493318640" className="hover:text-portfolio transition-colors">
-            +1(949)-331-8640
+          <a href="tel:+19497059532" className="hover:text-portfolio transition-colors">
+            +1(949)-705-9532
           </a>
         </p>
         <p className="text-neutral-900 text-base leading-relaxed mb-8">
@@ -25,7 +25,7 @@ export function TimelineHero() {
 
         <div className="flex flex-wrap items-center justify-center gap-3">
           <a
-            href="/YunaPark_Resume_Embedded.pdf"
+            href="/dist/YunaPark_Resume.pdf"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 rounded-lg bg-portfolio px-4 py-2.5 text-sm font-semibold text-portfolio-foreground transition-all duration-300 ease-out hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-portfolio-hover hover:shadow-lg hover:shadow-portfolio/25"
