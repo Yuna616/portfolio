@@ -25,7 +25,7 @@ export function TimelineHero() {
 
         <div className="flex flex-wrap items-center justify-center gap-3">
           <a
-            href="/dist/YunaPark_Resume.pdf"
+            href="/YunaPark_Resume.pdf"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 rounded-lg bg-portfolio px-4 py-2.5 text-sm font-semibold text-portfolio-foreground transition-all duration-300 ease-out hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-portfolio-hover hover:shadow-lg hover:shadow-portfolio/25"
